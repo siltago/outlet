@@ -7,7 +7,9 @@ import {
   updateProductAction,
   type ProductFormState,
 } from "@/app/admin/(protected)/produtos/actions";
+import { ColorManager } from "@/components/admin/ColorManager";
 import { PhotoManager } from "@/components/admin/PhotoManager";
+import { formatPriceInput, parsePriceInput } from "@/lib/format";
 import type { AdminCategoria, AdminProductDetail } from "@/types/admin";
 import type { ModalidadeVenda } from "@/types/database";
 
@@ -25,6 +27,8 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+const MARGEM_VENDA_PADRAO = 0.15;
 
 function FieldError({ message }: { message: string }) {
   return (
@@ -85,6 +89,15 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
   const [modalidade, setModalidade] = useState<ModalidadeVenda>(
     produto?.modalidadeVenda ?? "pronta_entrega",
   );
+  const [precoCusto, setPrecoCusto] = useState(
+    produto?.precoCusto !== null && produto?.precoCusto !== undefined
+      ? formatPriceInput(produto.precoCusto)
+      : "",
+  );
+  const [precoVenda, setPrecoVenda] = useState(
+    produto?.precoVenda !== undefined ? formatPriceInput(produto.precoVenda) : "",
+  );
+  const [vendaTouched, setVendaTouched] = useState(isEdit);
 
   const controleEstoque = modalidade === "sob_encomenda" ? "sem_controle" : "quantidade";
   const showQuantidade = controleEstoque === "quantidade";
@@ -94,6 +107,16 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
     if (!slugTouched) {
       setSlug(slugify(value));
     }
+  }
+
+  // Sugere o preço de venda com margem fixa de 15% sobre o custo, até o
+  // usuário editar o campo manualmente (então para de sobrescrever).
+  function handleCustoChange(value: string) {
+    setPrecoCusto(value);
+    if (vendaTouched) return;
+
+    const custo = parsePriceInput(value);
+    setPrecoVenda(custo === null ? "" : formatPriceInput(custo * (1 + MARGEM_VENDA_PADRAO)));
   }
 
   return (
@@ -134,6 +157,11 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
             defaultValue={produto?.descricao ?? ""}
             className={INPUT_CLASS}
           />
+          <span className="text-xs text-brand-gray-600">
+            Use <code>**texto**</code> para negrito e <code>&gt;texto&lt;</code> para destaque
+            (caixinha cinza) na página do produto — dá pra combinar, ex:{" "}
+            <code>&gt;**texto**&lt;</code>.
+          </span>
         </label>
 
         <label className="flex flex-col gap-1.5">
@@ -209,11 +237,12 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-brand-black">Preço de custo (interno)</span>
           <input
-            type="number"
-            step="0.01"
-            min={0}
+            type="text"
+            inputMode="decimal"
             name="precoCusto"
-            defaultValue={produto?.precoCusto ?? ""}
+            placeholder="0,00"
+            value={precoCusto}
+            onChange={(event) => handleCustoChange(event.target.value)}
             className={INPUT_CLASS}
           />
         </label>
@@ -221,14 +250,21 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-brand-black">Preço de venda</span>
           <input
-            type="number"
-            step="0.01"
-            min={0}
+            type="text"
+            inputMode="decimal"
             name="precoVenda"
             required
-            defaultValue={produto?.precoVenda ?? ""}
+            placeholder="0,00"
+            value={precoVenda}
+            onChange={(event) => {
+              setPrecoVenda(event.target.value);
+              setVendaTouched(true);
+            }}
             className={INPUT_CLASS}
           />
+          <span className="text-xs text-brand-gray-600">
+            Sugerido automaticamente com 15% de margem sobre o custo — edite se quiser outro valor.
+          </span>
           {state.fieldErrors?.precoVenda && <FieldError message={state.fieldErrors.precoVenda} />}
         </label>
       </div>
@@ -248,13 +284,31 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
       </div>
 
       {isEdit && produto ? (
+        <div className="flex flex-col gap-3 border-t border-brand-gray-200 pt-6">
+          <div>
+            <h2 className="text-sm font-semibold text-brand-black">Cores</h2>
+            <p className="text-xs text-brand-gray-600">
+              Opcional. Cada cor tem preço, estoque e fotos próprios — o cliente escolhe a cor na
+              página do produto.
+            </p>
+          </div>
+          <ColorManager productId={produto.id} controleEstoque={controleEstoque} cores={produto.cores} />
+        </div>
+      ) : null}
+
+      {isEdit && produto ? (
         <div className="flex flex-col gap-2 border-t border-brand-gray-200 pt-6">
-          <h2 className="text-sm font-semibold text-brand-black">Fotos</h2>
+          <div>
+            <h2 className="text-sm font-semibold text-brand-black">Fotos gerais</h2>
+            <p className="text-xs text-brand-gray-600">
+              Usadas quando o produto não tem cores cadastradas (ou como reserva).
+            </p>
+          </div>
           <PhotoManager productId={produto.id} photos={produto.fotos} />
         </div>
       ) : (
         <p className="rounded-brand border border-brand-gray-200 bg-brand-gray-50 px-3 py-2 text-sm text-brand-gray-600">
-          Salve o produto para poder enviar fotos.
+          Salve o produto para poder cadastrar cores e enviar fotos.
         </p>
       )}
 

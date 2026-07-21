@@ -5,6 +5,9 @@ const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : undefined
 
 const nextConfig: NextConfig = {
   images: {
+    // Next.js 16: só permite quality=75 por padrão; a galeria de produto usa
+    // quality=90 para fotos maiores exibidas por inteiro (object-contain).
+    qualities: [75, 90],
     remotePatterns: supabaseHostname
       ? [
           {

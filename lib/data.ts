@@ -18,6 +18,7 @@ import type { Database } from "@/types/database";
 // delas lança um erro claro em `requireSupabaseEnv` (ver lib/supabase/config).
 
 type CatalogRow = Database["public"]["Views"]["vw_catalogo_publico"]["Row"];
+type CorRow = Database["public"]["Views"]["vw_produto_cores_publico"]["Row"];
 
 function warnMockFallback(reason: string) {
   if (process.env.NODE_ENV !== "production") {
@@ -49,6 +50,7 @@ function mapRow(row: CatalogRow): ProductWithCategory {
     controleEstoque: row.controle_estoque,
     quantidadeAtual: row.quantidade_disponivel,
     precoVenda: Number(row.preco_venda),
+    temCores: row.tem_cores,
     ativo: true,
     publicado: true,
     destaque: row.destaque,
@@ -60,6 +62,33 @@ function mapRow(row: CatalogRow): ProductWithCategory {
       ordem: 0,
     },
   };
+}
+
+function mapCorRow(row: CorRow) {
+  return {
+    id: row.id,
+    nome: row.nome,
+    precoVenda: Number(row.preco_venda),
+    quantidadeAtual: row.quantidade_disponivel,
+    imagens: row.fotos.map(buildProductPhotoUrl),
+  };
+}
+
+async function attachCores(
+  supabase: NonNullable<Awaited<ReturnType<typeof getPublicClient>>>,
+  product: ProductWithCategory,
+): Promise<ProductWithCategory> {
+  if (!product.temCores) return product;
+
+  const { data, error } = await supabase
+    .from("vw_produto_cores_publico")
+    .select("*")
+    .eq("produto_id", product.id)
+    .order("ordem", { ascending: true });
+
+  if (error || !data) return product;
+
+  return { ...product, cores: data.map(mapCorRow) };
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -166,8 +195,9 @@ export async function getProductBySlug(slug: string): Promise<ProductWithCategor
     warnMockFallback(`erro ao consultar produto (${error.message})`);
     return mock.getProductBySlug(slug);
   }
+  if (!data) return null;
 
-  return data ? mapRow(data) : null;
+  return attachCores(supabase, mapRow(data));
 }
 
 export async function getRelatedProducts(

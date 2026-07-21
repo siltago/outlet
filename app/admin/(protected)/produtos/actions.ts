@@ -5,18 +5,28 @@ import { redirect } from "next/navigation";
 import type { ZodError } from "zod";
 import { requireStaff } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { PRODUCT_PHOTOS_BUCKET } from "@/lib/supabase/storage";
+import { buildProductPhotoUrl, PRODUCT_PHOTOS_BUCKET } from "@/lib/supabase/storage";
 import {
   addProductPhoto,
+  createCor,
   createProduct,
+  deleteCor,
+  deleteProduct,
   getNextPhotoOrder,
   removeProductPhoto,
   reorderProductPhotos,
+  updateCor,
   updateProduct,
 } from "@/lib/admin/products";
-import { parseProductFormData } from "@/lib/validation/product";
+import { parseCorFormData, parseProductFormData } from "@/lib/validation/product";
+import type { AdminProductPhoto } from "@/types/admin";
 
 export interface ProductFormState {
+  error: string | null;
+  fieldErrors?: Record<string, string>;
+}
+
+export interface CorFormState {
   error: string | null;
   fieldErrors?: Record<string, string>;
 }
@@ -86,21 +96,131 @@ export async function updateProductAction(
   return { error: null };
 }
 
+export async function deleteProductAction(productId: string): Promise<{ error: string | null }> {
+  await requireStaff();
+
+  let fotoCaminhos: string[];
+  try {
+    ({ fotoCaminhos } = await deleteProduct(productId));
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não foi possível excluir o produto." };
+  }
+
+  if (fotoCaminhos.length > 0) {
+    const supabase = await createClient();
+    // Best-effort: o produto já foi excluído (fonte da verdade); se a limpeza
+    // do Storage falhar, só sobra arquivo órfão no bucket, não é crítico.
+    await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove(fotoCaminhos);
+  }
+
+  revalidateCatalog();
+  return { error: null };
+}
+
+export async function createCorAction(
+  productId: string,
+  controleEstoque: "quantidade" | "sem_controle",
+  _prevState: CorFormState,
+  formData: FormData,
+): Promise<CorFormState> {
+  await requireStaff();
+
+  const parsed = parseCorFormData(formData, controleEstoque);
+  if (!parsed.success) {
+    return { error: "Corrija os campos destacados.", fieldErrors: flattenZodError(parsed.error) };
+  }
+
+  const values = {
+    nome: parsed.data.nome,
+    precoCusto: parsed.data.precoCusto,
+    precoVenda: parsed.data.precoVenda,
+    quantidadeAtual: parsed.data.quantidadeAtual,
+    quantidadeMinima: parsed.data.quantidadeMinima,
+  };
+
+  try {
+    await createCor(productId, values);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não foi possível criar a cor." };
+  }
+
+  revalidateCatalog();
+  revalidatePath(`/admin/produtos/${productId}`);
+  return { error: null };
+}
+
+export async function updateCorAction(
+  corId: string,
+  productId: string,
+  controleEstoque: "quantidade" | "sem_controle",
+  _prevState: CorFormState,
+  formData: FormData,
+): Promise<CorFormState> {
+  await requireStaff();
+
+  const parsed = parseCorFormData(formData, controleEstoque);
+  if (!parsed.success) {
+    return { error: "Corrija os campos destacados.", fieldErrors: flattenZodError(parsed.error) };
+  }
+
+  const values = {
+    nome: parsed.data.nome,
+    precoCusto: parsed.data.precoCusto,
+    precoVenda: parsed.data.precoVenda,
+    quantidadeAtual: parsed.data.quantidadeAtual,
+    quantidadeMinima: parsed.data.quantidadeMinima,
+  };
+
+  try {
+    await updateCor(corId, values);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não foi possível salvar a cor." };
+  }
+
+  revalidateCatalog();
+  revalidatePath(`/admin/produtos/${productId}`);
+  return { error: null };
+}
+
+export async function deleteCorAction(
+  corId: string,
+  productId: string,
+): Promise<{ error: string | null }> {
+  await requireStaff();
+
+  let fotoCaminhos: string[];
+  try {
+    ({ fotoCaminhos } = await deleteCor(corId));
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não foi possível excluir a cor." };
+  }
+
+  if (fotoCaminhos.length > 0) {
+    const supabase = await createClient();
+    await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove(fotoCaminhos);
+  }
+
+  revalidateCatalog();
+  revalidatePath(`/admin/produtos/${productId}`);
+  return { error: null };
+}
+
 export async function uploadProductPhotoAction(
   productId: string,
   formData: FormData,
-): Promise<{ error: string | null }> {
+  corId: string | null = null,
+): Promise<{ error: string | null; photo: AdminProductPhoto | null }> {
   await requireStaff();
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    return { error: "Selecione um arquivo." };
+    return { error: "Selecione um arquivo.", photo: null };
   }
   if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
-    return { error: "Formato não suportado. Use PNG, JPEG ou WEBP (SVG não é aceito)." };
+    return { error: "Formato não suportado. Use PNG, JPEG ou WEBP (SVG não é aceito).", photo: null };
   }
   if (file.size > MAX_PHOTO_SIZE_BYTES) {
-    return { error: "Arquivo maior que 5MB." };
+    return { error: "Arquivo maior que 5MB.", photo: null };
   }
 
   const supabase = await createClient();
@@ -112,22 +232,30 @@ export async function uploadProductPhotoAction(
     .upload(path, file, { contentType: file.type });
 
   if (uploadError) {
-    return { error: uploadError.message };
+    return { error: uploadError.message, photo: null };
   }
 
+  let photoId: string;
+  let ordem: number;
   try {
-    const ordem = await getNextPhotoOrder(productId);
-    await addProductPhoto(productId, path, ordem);
+    ordem = await getNextPhotoOrder(productId, corId);
+    ({ id: photoId } = await addProductPhoto(productId, path, ordem, corId));
   } catch (err) {
     // O arquivo já foi enviado ao Storage; se o registro em produto_fotos
     // falhar, desfaz o upload para não deixar arquivo órfão no bucket.
     await supabase.storage.from(PRODUCT_PHOTOS_BUCKET).remove([path]);
-    return { error: err instanceof Error ? err.message : "Não foi possível salvar a foto." };
+    return {
+      error: err instanceof Error ? err.message : "Não foi possível salvar a foto.",
+      photo: null,
+    };
   }
 
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/catalogo");
-  return { error: null };
+  return {
+    error: null,
+    photo: { id: photoId, caminho: path, url: buildProductPhotoUrl(path), ordem },
+  };
 }
 
 export async function deleteProductPhotoAction(

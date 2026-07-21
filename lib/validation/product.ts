@@ -88,6 +88,12 @@ export function parseProductFormData(formData: FormData) {
     return trimmed === "" ? null : trimmed;
   };
 
+  // Aceita "99,90" (vírgula, formato brasileiro) além de "99.90".
+  const parsePrice = (value: FormDataEntryValue | null) => {
+    const normalized = emptyToNull(value);
+    return normalized === null ? null : normalized.replace(",", ".");
+  };
+
   const raw = {
     nome: formData.get("nome") ?? "",
     slug: formData.get("slug") ?? "",
@@ -97,14 +103,82 @@ export function parseProductFormData(formData: FormData) {
     controleEstoque: formData.get("controleEstoque") ?? "",
     quantidadeAtual: emptyToNull(formData.get("quantidadeAtual")),
     quantidadeMinima: emptyToNull(formData.get("quantidadeMinima")),
-    precoCusto: emptyToNull(formData.get("precoCusto")),
-    precoVenda: formData.get("precoVenda") ?? "",
+    precoCusto: parsePrice(formData.get("precoCusto")),
+    precoVenda: parsePrice(formData.get("precoVenda")) ?? "",
     ativo: formData.get("ativo"),
     publicado: formData.get("publicado"),
     destaque: formData.get("destaque"),
   };
 
   return productFormSchema.safeParse(raw);
+}
+
+export const corFormSchema = z
+  .object({
+    nome: z.string().trim().min(1, "Informe o nome da cor.").max(80),
+    precoCusto: z.coerce.number().min(0, "Não pode ser negativo.").nullable(),
+    precoVenda: z.coerce.number().min(0.01, "Informe um preço de venda válido."),
+    quantidadeAtual: z.coerce.number().int().min(0, "Não pode ser negativo.").nullable(),
+    quantidadeMinima: z.coerce.number().int().min(0, "Não pode ser negativo.").nullable(),
+    controleEstoque: z.enum(["quantidade", "sem_controle"]),
+  })
+  .superRefine((data, ctx) => {
+    if (data.controleEstoque === "quantidade") {
+      if (data.quantidadeAtual === null) {
+        ctx.addIssue({ code: "custom", path: ["quantidadeAtual"], message: "Informe a quantidade atual." });
+      }
+      if (data.quantidadeMinima === null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["quantidadeMinima"],
+          message: "Informe a quantidade mínima.",
+        });
+      }
+    } else {
+      if (data.quantidadeAtual !== null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["quantidadeAtual"],
+          message: "Sem controle de estoque não deve informar quantidade.",
+        });
+      }
+      if (data.quantidadeMinima !== null) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["quantidadeMinima"],
+          message: "Sem controle de estoque não deve informar quantidade mínima.",
+        });
+      }
+    }
+  });
+
+export type CorFormValues = z.infer<typeof corFormSchema>;
+
+export function parseCorFormData(
+  formData: FormData,
+  controleEstoque: "quantidade" | "sem_controle",
+) {
+  const emptyToNull = (value: FormDataEntryValue | null) => {
+    if (value === null) return null;
+    const trimmed = String(value).trim();
+    return trimmed === "" ? null : trimmed;
+  };
+
+  const parsePrice = (value: FormDataEntryValue | null) => {
+    const normalized = emptyToNull(value);
+    return normalized === null ? null : normalized.replace(",", ".");
+  };
+
+  const raw = {
+    nome: formData.get("nome") ?? "",
+    precoCusto: parsePrice(formData.get("precoCusto")),
+    precoVenda: parsePrice(formData.get("precoVenda")) ?? "",
+    quantidadeAtual: emptyToNull(formData.get("quantidadeAtual")),
+    quantidadeMinima: emptyToNull(formData.get("quantidadeMinima")),
+    controleEstoque,
+  };
+
+  return corFormSchema.safeParse(raw);
 }
 
 export const categoryFormSchema = z.object({

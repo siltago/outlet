@@ -12,6 +12,14 @@ export interface Category {
   ordem: number;
 }
 
+export interface ProductColor {
+  id: string;
+  nome: string;
+  precoVenda: number;
+  quantidadeAtual: number | null;
+  imagens: string[];
+}
+
 export interface Product {
   id: string;
   nome: string;
@@ -22,6 +30,8 @@ export interface Product {
   controleEstoque: StockControl;
   quantidadeAtual: number | null;
   precoVenda: number;
+  temCores?: boolean;
+  cores?: ProductColor[];
   ativo: boolean;
   publicado: boolean;
   destaque: boolean;

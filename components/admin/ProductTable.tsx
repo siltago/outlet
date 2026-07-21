@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Package, Pencil } from "lucide-react";
+import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
 import { formatCurrencyBRL } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import type { AdminProduct } from "@/types/admin";
@@ -73,6 +74,7 @@ function RowActions({ produto }: { produto: AdminProduct }) {
           Ver no site
         </a>
       )}
+      <DeleteProductButton productId={produto.id} nome={produto.nome} />
     </div>
   );
 }

@@ -14,6 +14,17 @@ export interface AdminProductPhoto {
   ordem: number;
 }
 
+export interface AdminCor {
+  id: string;
+  nome: string;
+  precoCusto: number | null;
+  precoVenda: number;
+  quantidadeAtual: number | null;
+  quantidadeMinima: number | null;
+  ordem: number;
+  fotos: AdminProductPhoto[];
+}
+
 export interface AdminProduct {
   id: string;
   nome: string;
@@ -39,6 +50,7 @@ export interface AdminProduct {
 
 export interface AdminProductDetail extends AdminProduct {
   fotos: AdminProductPhoto[];
+  cores: AdminCor[];
 }
 
 export interface ProductListFilters {

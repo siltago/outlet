@@ -38,6 +38,7 @@ export function ProductCard({ product }: { product: ProductWithCategory }) {
           </Link>
         </h3>
         <p className="mt-1 text-lg font-bold text-brand-black">
+          {product.temCores && <span className="mr-1 text-xs font-normal text-brand-gray-600">a partir de</span>}
           {formatCurrencyBRL(product.precoVenda)}
         </p>
 

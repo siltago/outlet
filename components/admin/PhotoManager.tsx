@@ -17,12 +17,15 @@ const MAX_SIZE_MB = 5;
 export function PhotoManager({
   productId,
   photos,
+  corId = null,
 }: {
   productId: string;
   photos: AdminProductPhoto[];
+  corId?: string | null;
 }) {
   const router = useRouter();
   const [items, setItems] = useState(photos);
+  const [pending, setPending] = useState<{ key: string; previewUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -42,11 +45,23 @@ export function PhotoManager({
         continue;
       }
 
+      // Mostra uma mini prévia local (do arquivo escolhido) enquanto o
+      // upload para o Storage ainda está em andamento.
+      const previewUrl = URL.createObjectURL(file);
+      const key = `${file.name}-${file.lastModified}-${previewUrl}`;
+      setPending((prev) => [...prev, { key, previewUrl }]);
+
       const formData = new FormData();
       formData.set("file", file);
-      const result = await uploadProductPhotoAction(productId, formData);
+      const result = await uploadProductPhotoAction(productId, formData, corId);
+
+      setPending((prev) => prev.filter((p) => p.key !== key));
+      URL.revokeObjectURL(previewUrl);
+
       if (result.error) {
         setError(result.error);
+      } else if (result.photo) {
+        setItems((prev) => [...prev, result.photo as AdminProductPhoto]);
       }
     }
 
@@ -112,8 +127,26 @@ export function PhotoManager({
         </p>
       )}
 
-      {items.length > 0 && (
+      {(items.length > 0 || pending.length > 0) && (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {pending.map((p) => (
+            <li
+              key={p.key}
+              className="flex flex-col gap-2 rounded-brand border border-brand-gray-200 p-2"
+            >
+              <div className="relative aspect-square overflow-hidden rounded-brand bg-brand-gray-50">
+                {/* eslint-disable-next-line @next/next/no-img-element -- blob: URL local, não passa pelo otimizador de imagem */}
+                <img
+                  src={p.previewUrl}
+                  alt=""
+                  className="h-full w-full object-cover opacity-60"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-brand-black/30 text-[10px] font-semibold text-brand-white">
+                  Enviando...
+                </div>
+              </div>
+            </li>
+          ))}
           {items.map((photo, index) => (
             <li
               key={photo.id}

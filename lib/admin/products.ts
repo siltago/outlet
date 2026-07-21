@@ -6,8 +6,10 @@ import { buildProductPhotoUrl } from "@/lib/supabase/storage";
 import type { ProductFormValues } from "@/lib/validation/product";
 import type {
   AdminCategoria,
+  AdminCor,
   AdminProduct,
   AdminProductDetail,
+  AdminProductPhoto,
   DashboardStats,
   ProductListFilters,
 } from "@/types/admin";
@@ -16,7 +18,8 @@ const PRODUTO_SELECT =
   "id, nome, slug, descricao, categoria_id, modalidade_venda, controle_estoque, " +
   "quantidade_atual, quantidade_reservada, quantidade_minima, preco_custo, preco_venda, " +
   "ativo, publicado, destaque, criado_em, atualizado_em, " +
-  "categoria:categorias(nome, slug), fotos:produto_fotos(id, caminho, ordem)";
+  "categoria:categorias(nome, slug), fotos:produto_fotos(id, caminho, ordem, cor_id), " +
+  "cores:produto_cores(id, nome, preco_custo, preco_venda, quantidade_atual, quantidade_minima, ordem)";
 
 type ProdutoJoinedRow = {
   id: string;
@@ -37,11 +40,31 @@ type ProdutoJoinedRow = {
   criado_em: string;
   atualizado_em: string;
   categoria: { nome: string; slug: string } | null;
-  fotos: { id: string; caminho: string; ordem: number }[] | null;
+  fotos: { id: string; caminho: string; ordem: number; cor_id: string | null }[] | null;
+  cores:
+    | {
+        id: string;
+        nome: string;
+        preco_custo: number | null;
+        preco_venda: number;
+        quantidade_atual: number | null;
+        quantidade_minima: number | null;
+        ordem: number;
+      }[]
+    | null;
 };
 
+function mapFoto(foto: { id: string; caminho: string; ordem: number }): AdminProductPhoto {
+  return { id: foto.id, caminho: foto.caminho, url: buildProductPhotoUrl(foto.caminho), ordem: foto.ordem };
+}
+
 function mapProduct(row: ProdutoJoinedRow): AdminProduct {
-  const fotosOrdenadas = [...(row.fotos ?? [])].sort((a, b) => a.ordem - b.ordem);
+  // Fotos "gerais" (sem cor) definem a miniatura na listagem; se o produto só
+  // tiver fotos por cor, usa a primeira delas como fallback.
+  const gerais = (row.fotos ?? []).filter((f) => f.cor_id === null).sort((a, b) => a.ordem - b.ordem);
+  const todas = [...(row.fotos ?? [])].sort((a, b) => a.ordem - b.ordem);
+  const capa = gerais[0] ?? todas[0];
+
   return {
     id: row.id,
     nome: row.nome,
@@ -62,20 +85,37 @@ function mapProduct(row: ProdutoJoinedRow): AdminProduct {
     destaque: row.destaque,
     criadoEm: row.criado_em,
     atualizadoEm: row.atualizado_em,
-    fotoPrincipal: fotosOrdenadas[0] ? buildProductPhotoUrl(fotosOrdenadas[0].caminho) : null,
+    fotoPrincipal: capa ? buildProductPhotoUrl(capa.caminho) : null,
   };
 }
 
 function mapProductDetail(row: ProdutoJoinedRow): AdminProductDetail {
-  const fotosOrdenadas = [...(row.fotos ?? [])].sort((a, b) => a.ordem - b.ordem);
+  const fotos = row.fotos ?? [];
+  const geraisOrdenadas = fotos
+    .filter((f) => f.cor_id === null)
+    .sort((a, b) => a.ordem - b.ordem)
+    .map(mapFoto);
+
+  const cores: AdminCor[] = [...(row.cores ?? [])]
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((cor) => ({
+      id: cor.id,
+      nome: cor.nome,
+      precoCusto: cor.preco_custo === null ? null : Number(cor.preco_custo),
+      precoVenda: Number(cor.preco_venda),
+      quantidadeAtual: cor.quantidade_atual,
+      quantidadeMinima: cor.quantidade_minima,
+      ordem: cor.ordem,
+      fotos: fotos
+        .filter((f) => f.cor_id === cor.id)
+        .sort((a, b) => a.ordem - b.ordem)
+        .map(mapFoto),
+    }));
+
   return {
     ...mapProduct(row),
-    fotos: fotosOrdenadas.map((foto) => ({
-      id: foto.id,
-      caminho: foto.caminho,
-      url: buildProductPhotoUrl(foto.caminho),
-      ordem: foto.ordem,
-    })),
+    fotos: geraisOrdenadas,
+    cores,
   };
 }
 
@@ -127,6 +167,125 @@ export async function listCategoriasAdmin(): Promise<AdminCategoria[]> {
   }
 
   return data;
+}
+
+export async function createCategoria(values: { nome: string; slug: string }): Promise<{ id: string }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { count } = await supabase
+    .from("categorias")
+    .select("id", { count: "exact", head: true });
+
+  const { data, error } = await supabase
+    .from("categorias")
+    .insert({ nome: values.nome, slug: values.slug, ordem: (count ?? 0) + 1 })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Não foi possível criar a categoria.");
+  }
+
+  return { id: data.id };
+}
+
+export async function deleteCategoria(id: string): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("categorias").delete().eq("id", id);
+
+  if (error) {
+    // FK "on delete restrict" em produtos.categoria_id: categoria com produtos
+    // vinculados não pode ser removida.
+    if (error.code === "23503") {
+      throw new Error("Essa categoria tem produtos vinculados e não pode ser removida.");
+    }
+    throw new Error(error.message);
+  }
+}
+
+export interface CorValues {
+  nome: string;
+  precoCusto: number | null;
+  precoVenda: number;
+  quantidadeAtual: number | null;
+  quantidadeMinima: number | null;
+}
+
+export async function createCor(productId: string, values: CorValues): Promise<{ id: string }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { count } = await supabase
+    .from("produto_cores")
+    .select("id", { count: "exact", head: true })
+    .eq("produto_id", productId);
+
+  const { data, error } = await supabase
+    .from("produto_cores")
+    .insert({
+      produto_id: productId,
+      nome: values.nome,
+      preco_custo: values.precoCusto,
+      preco_venda: values.precoVenda,
+      quantidade_atual: values.quantidadeAtual,
+      quantidade_minima: values.quantidadeMinima,
+      ordem: (count ?? 0) + 1,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    if (error?.code === "23505") {
+      throw new Error("Já existe uma cor com esse nome nesse produto.");
+    }
+    throw new Error(error?.message ?? "Não foi possível criar a cor.");
+  }
+
+  return { id: data.id };
+}
+
+export async function updateCor(corId: string, values: CorValues): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("produto_cores")
+    .update({
+      nome: values.nome,
+      preco_custo: values.precoCusto,
+      preco_venda: values.precoVenda,
+      quantidade_atual: values.quantidadeAtual,
+      quantidade_minima: values.quantidadeMinima,
+    })
+    .eq("id", corId);
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("Já existe uma cor com esse nome nesse produto.");
+    }
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteCor(corId: string): Promise<{ fotoCaminhos: string[] }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { data: fotos } = await supabase
+    .from("produto_fotos")
+    .select("caminho")
+    .eq("cor_id", corId);
+
+  const { error } = await supabase.from("produto_cores").delete().eq("id", corId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { fotoCaminhos: (fotos ?? []).map((foto) => foto.caminho) };
 }
 
 export async function listProducts(filters: ProductListFilters = {}): Promise<AdminProduct[]> {
@@ -228,21 +387,44 @@ export async function updateProduct(id: string, values: ProductFormValues): Prom
   }
 }
 
-export async function addProductPhoto(
-  productId: string,
-  caminho: string,
-  ordem: number,
-): Promise<void> {
+export async function deleteProduct(id: string): Promise<{ fotoCaminhos: string[] }> {
   await requireStaff();
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data: fotos } = await supabase
     .from("produto_fotos")
-    .insert({ produto_id: productId, caminho, ordem });
+    .select("caminho")
+    .eq("produto_id", id);
+
+  const { error } = await supabase.from("produtos").delete().eq("id", id);
 
   if (error) {
     throw new Error(error.message);
   }
+
+  return { fotoCaminhos: (fotos ?? []).map((foto) => foto.caminho) };
+}
+
+export async function addProductPhoto(
+  productId: string,
+  caminho: string,
+  ordem: number,
+  corId: string | null = null,
+): Promise<{ id: string }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("produto_fotos")
+    .insert({ produto_id: productId, cor_id: corId, caminho, ordem })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Não foi possível salvar a foto.");
+  }
+
+  return { id: data.id };
 }
 
 export async function removeProductPhoto(photoId: string): Promise<{ caminho: string }> {
@@ -298,17 +480,17 @@ export async function reorderProductPhotos(
   }
 }
 
-export async function getNextPhotoOrder(productId: string): Promise<number> {
+export async function getNextPhotoOrder(
+  productId: string,
+  corId: string | null = null,
+): Promise<number> {
   await requireStaff();
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("produto_fotos")
-    .select("ordem")
-    .eq("produto_id", productId)
-    .order("ordem", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  let query = supabase.from("produto_fotos").select("ordem").eq("produto_id", productId);
+  query = corId === null ? query.is("cor_id", null) : query.eq("cor_id", corId);
+
+  const { data, error } = await query.order("ordem", { ascending: false }).limit(1).maybeSingle();
 
   if (error) {
     throw new Error(error.message);

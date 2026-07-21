@@ -37,8 +37,9 @@ export default async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isLoginRoute = pathname === "/admin/login";
+  const isSignupRoute = pathname === "/admin/signup";
 
-  if (!isLoginRoute && !user) {
+  if (!isLoginRoute && !isSignupRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     url.search = "";
@@ -46,7 +47,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isLoginRoute && user) {
+  if ((isLoginRoute || isSignupRoute) && user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
     url.search = "";
