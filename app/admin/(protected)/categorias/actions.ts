@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/auth/session";
-import { createCategoria, deleteCategoria } from "@/lib/admin/products";
+import { createCategoria, deleteCategoria, updateCategoria } from "@/lib/admin/products";
 
 export interface CategoriaFormState {
   error: string | null;
@@ -23,15 +23,41 @@ export async function createCategoriaAction(
 
   const nome = String(formData.get("nome") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
+  const icone = String(formData.get("icone") ?? "").trim() || null;
 
   if (!nome || !slug) {
     return { error: "Informe nome e slug." };
   }
 
   try {
-    await createCategoria({ nome, slug });
+    await createCategoria({ nome, slug, icone });
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Não foi possível criar a categoria." };
+  }
+
+  revalidateCategorias();
+  return { error: null };
+}
+
+export async function updateCategoriaAction(
+  id: string,
+  _prevState: CategoriaFormState,
+  formData: FormData,
+): Promise<CategoriaFormState> {
+  await requireStaff();
+
+  const nome = String(formData.get("nome") ?? "").trim();
+  const slug = String(formData.get("slug") ?? "").trim();
+  const icone = String(formData.get("icone") ?? "").trim() || null;
+
+  if (!nome || !slug) {
+    return { error: "Informe nome e slug." };
+  }
+
+  try {
+    await updateCategoria(id, { nome, slug, icone });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não foi possível salvar a categoria." };
   }
 
   revalidateCategorias();

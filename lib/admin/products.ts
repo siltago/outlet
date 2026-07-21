@@ -19,7 +19,7 @@ const PRODUTO_SELECT =
   "quantidade_atual, quantidade_reservada, quantidade_minima, preco_custo, preco_venda, " +
   "ativo, publicado, destaque, criado_em, atualizado_em, " +
   "categoria:categorias(nome, slug), fotos:produto_fotos(id, caminho, ordem, cor_id), " +
-  "cores:produto_cores(id, nome, preco_custo, preco_venda, quantidade_atual, quantidade_minima, ordem)";
+  "cores:produto_cores(id, nome, preco_venda, quantidade_atual, quantidade_minima, ordem)";
 
 type ProdutoJoinedRow = {
   id: string;
@@ -45,7 +45,6 @@ type ProdutoJoinedRow = {
     | {
         id: string;
         nome: string;
-        preco_custo: number | null;
         preco_venda: number;
         quantidade_atual: number | null;
         quantidade_minima: number | null;
@@ -101,7 +100,6 @@ function mapProductDetail(row: ProdutoJoinedRow): AdminProductDetail {
     .map((cor) => ({
       id: cor.id,
       nome: cor.nome,
-      precoCusto: cor.preco_custo === null ? null : Number(cor.preco_custo),
       precoVenda: Number(cor.preco_venda),
       quantidadeAtual: cor.quantidade_atual,
       quantidadeMinima: cor.quantidade_minima,
@@ -159,7 +157,7 @@ export async function listCategoriasAdmin(): Promise<AdminCategoria[]> {
 
   const { data, error } = await supabase
     .from("categorias")
-    .select("id, nome, slug, ordem")
+    .select("id, nome, slug, ordem, icone")
     .order("ordem", { ascending: true });
 
   if (error || !data) {
@@ -169,7 +167,11 @@ export async function listCategoriasAdmin(): Promise<AdminCategoria[]> {
   return data;
 }
 
-export async function createCategoria(values: { nome: string; slug: string }): Promise<{ id: string }> {
+export async function createCategoria(values: {
+  nome: string;
+  slug: string;
+  icone: string | null;
+}): Promise<{ id: string }> {
   await requireStaff();
   const supabase = await createClient();
 
@@ -179,7 +181,7 @@ export async function createCategoria(values: { nome: string; slug: string }): P
 
   const { data, error } = await supabase
     .from("categorias")
-    .insert({ nome: values.nome, slug: values.slug, ordem: (count ?? 0) + 1 })
+    .insert({ nome: values.nome, slug: values.slug, icone: values.icone, ordem: (count ?? 0) + 1 })
     .select("id")
     .single();
 
@@ -188,6 +190,26 @@ export async function createCategoria(values: { nome: string; slug: string }): P
   }
 
   return { id: data.id };
+}
+
+export async function updateCategoria(
+  id: string,
+  values: { nome: string; slug: string; icone: string | null },
+): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("categorias")
+    .update({ nome: values.nome, slug: values.slug, icone: values.icone })
+    .eq("id", id);
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("Já existe uma categoria com esse slug.");
+    }
+    throw new Error(error.message);
+  }
 }
 
 export async function deleteCategoria(id: string): Promise<void> {
@@ -208,7 +230,6 @@ export async function deleteCategoria(id: string): Promise<void> {
 
 export interface CorValues {
   nome: string;
-  precoCusto: number | null;
   precoVenda: number;
   quantidadeAtual: number | null;
   quantidadeMinima: number | null;
@@ -228,7 +249,6 @@ export async function createCor(productId: string, values: CorValues): Promise<{
     .insert({
       produto_id: productId,
       nome: values.nome,
-      preco_custo: values.precoCusto,
       preco_venda: values.precoVenda,
       quantidade_atual: values.quantidadeAtual,
       quantidade_minima: values.quantidadeMinima,
@@ -255,7 +275,6 @@ export async function updateCor(corId: string, values: CorValues): Promise<void>
     .from("produto_cores")
     .update({
       nome: values.nome,
-      preco_custo: values.precoCusto,
       preco_venda: values.precoVenda,
       quantidade_atual: values.quantidadeAtual,
       quantidade_minima: values.quantidadeMinima,

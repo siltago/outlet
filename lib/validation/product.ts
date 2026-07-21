@@ -116,7 +116,6 @@ export function parseProductFormData(formData: FormData) {
 export const corFormSchema = z
   .object({
     nome: z.string().trim().min(1, "Informe o nome da cor.").max(80),
-    precoCusto: z.coerce.number().min(0, "Não pode ser negativo.").nullable(),
     precoVenda: z.coerce.number().min(0.01, "Informe um preço de venda válido."),
     quantidadeAtual: z.coerce.number().int().min(0, "Não pode ser negativo.").nullable(),
     quantidadeMinima: z.coerce.number().int().min(0, "Não pode ser negativo.").nullable(),
@@ -171,7 +170,6 @@ export function parseCorFormData(
 
   const raw = {
     nome: formData.get("nome") ?? "",
-    precoCusto: parsePrice(formData.get("precoCusto")),
     precoVenda: parsePrice(formData.get("precoVenda")) ?? "",
     quantidadeAtual: emptyToNull(formData.get("quantidadeAtual")),
     quantidadeMinima: emptyToNull(formData.get("quantidadeMinima")),

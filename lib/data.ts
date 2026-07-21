@@ -60,6 +60,7 @@ function mapRow(row: CatalogRow): ProductWithCategory {
       nome: row.categoria_nome,
       slug: row.categoria_slug,
       ordem: 0,
+      icone: null,
     },
   };
 }
@@ -97,7 +98,7 @@ export async function getCategories(): Promise<Category[]> {
 
   const { data, error } = await supabase
     .from("categorias")
-    .select("id, nome, slug, ordem")
+    .select("id, nome, slug, ordem, icone")
     .order("ordem", { ascending: true });
 
   if (error || !data) {
@@ -114,7 +115,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 
   const { data, error } = await supabase
     .from("categorias")
-    .select("id, nome, slug, ordem")
+    .select("id, nome, slug, ordem, icone")
     .eq("slug", slug)
     .maybeSingle();
 

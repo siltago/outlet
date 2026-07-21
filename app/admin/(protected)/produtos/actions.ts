@@ -132,7 +132,6 @@ export async function createCorAction(
 
   const values = {
     nome: parsed.data.nome,
-    precoCusto: parsed.data.precoCusto,
     precoVenda: parsed.data.precoVenda,
     quantidadeAtual: parsed.data.quantidadeAtual,
     quantidadeMinima: parsed.data.quantidadeMinima,
@@ -165,7 +164,6 @@ export async function updateCorAction(
 
   const values = {
     nome: parsed.data.nome,
-    precoCusto: parsed.data.precoCusto,
     precoVenda: parsed.data.precoVenda,
     quantidadeAtual: parsed.data.quantidadeAtual,
     quantidadeMinima: parsed.data.quantidadeMinima,

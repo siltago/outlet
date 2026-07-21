@@ -120,184 +120,203 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-sm font-medium text-brand-black">Nome</span>
-          <input
-            name="nome"
-            required
-            value={nome}
-            onChange={(event) => handleNomeChange(event.target.value)}
-            className={INPUT_CLASS}
-          />
-          {state.fieldErrors?.nome && <FieldError message={state.fieldErrors.nome} />}
-        </label>
-
-        <label className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-sm font-medium text-brand-black">Slug</span>
-          <input
-            name="slug"
-            required
-            value={slug}
-            onChange={(event) => {
-              setSlug(event.target.value);
-              setSlugTouched(true);
-            }}
-            className={INPUT_CLASS}
-          />
-          {state.fieldErrors?.slug && <FieldError message={state.fieldErrors.slug} />}
-        </label>
-
-        <label className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-sm font-medium text-brand-black">Descrição</span>
-          <textarea
-            name="descricao"
-            rows={4}
-            defaultValue={produto?.descricao ?? ""}
-            className={INPUT_CLASS}
-          />
-          <span className="text-xs text-brand-gray-600">
-            Use <code>**texto**</code> para negrito e <code>&gt;texto&lt;</code> para destaque
-            (caixinha cinza) na página do produto — dá pra combinar, ex:{" "}
-            <code>&gt;**texto**&lt;</code>.
-          </span>
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-brand-black">Categoria</span>
-          <select
-            name="categoriaId"
-            required
-            defaultValue={produto?.categoriaId ?? ""}
-            className={INPUT_CLASS}
-          >
-            <option value="" disabled>
-              Selecione...
-            </option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nome}
+    <>
+      <form action={formAction} className="flex flex-col gap-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="text-sm font-medium text-brand-black">Nome</span>
+            <input
+              name="nome"
+              required
+              value={nome}
+              onChange={(event) => handleNomeChange(event.target.value)}
+              className={INPUT_CLASS}
+            />
+            {state.fieldErrors?.nome && <FieldError message={state.fieldErrors.nome} />}
+          </label>
+  
+          <label className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="text-sm font-medium text-brand-black">Slug</span>
+            <input
+              name="slug"
+              required
+              value={slug}
+              onChange={(event) => {
+                setSlug(event.target.value);
+                setSlugTouched(true);
+              }}
+              className={INPUT_CLASS}
+            />
+            {state.fieldErrors?.slug && <FieldError message={state.fieldErrors.slug} />}
+          </label>
+  
+          <label className="flex flex-col gap-1.5 sm:col-span-2">
+            <span className="text-sm font-medium text-brand-black">Descrição</span>
+            <textarea
+              name="descricao"
+              rows={4}
+              defaultValue={produto?.descricao ?? ""}
+              className={INPUT_CLASS}
+            />
+            <span className="text-xs text-brand-gray-600">
+              Use <code>**texto**</code> para negrito e <code>&gt;texto&lt;</code> para destaque
+              (caixinha cinza) na página do produto — dá pra combinar, ex:{" "}
+              <code>&gt;**texto**&lt;</code>.
+            </span>
+          </label>
+  
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-brand-black">Categoria</span>
+            <select
+              name="categoriaId"
+              required
+              defaultValue={produto?.categoriaId ?? ""}
+              className={INPUT_CLASS}
+            >
+              <option value="" disabled>
+                Selecione...
               </option>
-            ))}
-          </select>
-          {state.fieldErrors?.categoriaId && <FieldError message={state.fieldErrors.categoriaId} />}
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-brand-black">Modalidade de venda</span>
-          <select
-            name="modalidadeVenda"
-            required
-            value={modalidade}
-            onChange={(event) => setModalidade(event.target.value as ModalidadeVenda)}
-            className={INPUT_CLASS}
-          >
-            <option value="pronta_entrega">Pronta entrega</option>
-            <option value="sob_encomenda">Sob encomenda</option>
-            <option value="ambos">Pronta entrega e encomenda</option>
-          </select>
-        </label>
-
-        <input type="hidden" name="controleEstoque" value={controleEstoque} />
-
-        {showQuantidade && (
-          <>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-brand-black">Quantidade atual</span>
-              <input
-                type="number"
-                name="quantidadeAtual"
-                min={0}
-                required
-                defaultValue={produto?.quantidadeAtual ?? 0}
-                className={INPUT_CLASS}
-              />
-              {state.fieldErrors?.quantidadeAtual && (
-                <FieldError message={state.fieldErrors.quantidadeAtual} />
-              )}
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-brand-black">Quantidade mínima</span>
-              <input
-                type="number"
-                name="quantidadeMinima"
-                min={0}
-                required
-                defaultValue={produto?.quantidadeMinima ?? 1}
-                className={INPUT_CLASS}
-              />
-              {state.fieldErrors?.quantidadeMinima && (
-                <FieldError message={state.fieldErrors.quantidadeMinima} />
-              )}
-            </label>
-          </>
-        )}
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-brand-black">Preço de custo (interno)</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            name="precoCusto"
-            placeholder="0,00"
-            value={precoCusto}
-            onChange={(event) => handleCustoChange(event.target.value)}
-            className={INPUT_CLASS}
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nome}
+                </option>
+              ))}
+            </select>
+            {state.fieldErrors?.categoriaId && <FieldError message={state.fieldErrors.categoriaId} />}
+          </label>
+  
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-brand-black">Modalidade de venda</span>
+            <select
+              name="modalidadeVenda"
+              required
+              value={modalidade}
+              onChange={(event) => setModalidade(event.target.value as ModalidadeVenda)}
+              className={INPUT_CLASS}
+            >
+              <option value="pronta_entrega">Pronta entrega</option>
+              <option value="sob_encomenda">Sob encomenda</option>
+              <option value="ambos">Pronta entrega e encomenda</option>
+            </select>
+          </label>
+  
+          <input type="hidden" name="controleEstoque" value={controleEstoque} />
+  
+          {showQuantidade && (
+            <>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-brand-black">Quantidade atual</span>
+                <input
+                  type="number"
+                  name="quantidadeAtual"
+                  min={0}
+                  required
+                  defaultValue={produto?.quantidadeAtual ?? 0}
+                  className={INPUT_CLASS}
+                />
+                {state.fieldErrors?.quantidadeAtual && (
+                  <FieldError message={state.fieldErrors.quantidadeAtual} />
+                )}
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-brand-black">Quantidade mínima</span>
+                <input
+                  type="number"
+                  name="quantidadeMinima"
+                  min={0}
+                  required
+                  defaultValue={produto?.quantidadeMinima ?? 1}
+                  className={INPUT_CLASS}
+                />
+                {state.fieldErrors?.quantidadeMinima && (
+                  <FieldError message={state.fieldErrors.quantidadeMinima} />
+                )}
+              </label>
+            </>
+          )}
+  
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-brand-black">Preço de custo (interno)</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              name="precoCusto"
+              placeholder="0,00"
+              value={precoCusto}
+              onChange={(event) => handleCustoChange(event.target.value)}
+              className={INPUT_CLASS}
+            />
+          </label>
+  
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-brand-black">Preço de venda</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              name="precoVenda"
+              required
+              placeholder="0,00"
+              value={precoVenda}
+              onChange={(event) => {
+                setPrecoVenda(event.target.value);
+                setVendaTouched(true);
+              }}
+              className={INPUT_CLASS}
+            />
+            <span className="text-xs text-brand-gray-600">
+              Sugerido automaticamente com 15% de margem sobre o custo — edite se quiser outro valor.
+            </span>
+            {state.fieldErrors?.precoVenda && <FieldError message={state.fieldErrors.precoVenda} />}
+          </label>
+        </div>
+  
+        <div className="flex flex-wrap gap-6">
+          <CheckboxField name="ativo" label="Ativo" defaultChecked={produto?.ativo ?? true} />
+          <CheckboxField
+            name="publicado"
+            label="Publicado no site"
+            defaultChecked={produto?.publicado ?? false}
           />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-brand-black">Preço de venda</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            name="precoVenda"
-            required
-            placeholder="0,00"
-            value={precoVenda}
-            onChange={(event) => {
-              setPrecoVenda(event.target.value);
-              setVendaTouched(true);
-            }}
-            className={INPUT_CLASS}
+          <CheckboxField
+            name="destaque"
+            label="Destaque na home"
+            defaultChecked={produto?.destaque ?? false}
           />
-          <span className="text-xs text-brand-gray-600">
-            Sugerido automaticamente com 15% de margem sobre o custo — edite se quiser outro valor.
-          </span>
-          {state.fieldErrors?.precoVenda && <FieldError message={state.fieldErrors.precoVenda} />}
-        </label>
-      </div>
+        </div>
+  
+        {state.error && <FieldError message={state.error} />}
+  
+        <div className="flex gap-3">
+          <SubmitButton label={isEdit ? "Salvar alterações" : "Cadastrar produto"} />
+        </div>
+      </form>
 
-      <div className="flex flex-wrap gap-6">
-        <CheckboxField name="ativo" label="Ativo" defaultChecked={produto?.ativo ?? true} />
-        <CheckboxField
-          name="publicado"
-          label="Publicado no site"
-          defaultChecked={produto?.publicado ?? false}
-        />
-        <CheckboxField
-          name="destaque"
-          label="Destaque na home"
-          defaultChecked={produto?.destaque ?? false}
-        />
-      </div>
-
+      {/*
+        Cores e fotos ficam fora do <form> do produto de propósito: cada uma
+        já tem seu próprio <form>/Server Action (ColorManager, PhotoManager),
+        e HTML não permite <form> aninhado — isso causava o erro "A React
+        form was unexpectedly submitted" no navegador.
+      */}
       {isEdit && produto ? (
-        <div className="flex flex-col gap-3 border-t border-brand-gray-200 pt-6">
+        <div className="mt-6 flex flex-col gap-3 border-t border-brand-gray-200 pt-6">
           <div>
             <h2 className="text-sm font-semibold text-brand-black">Cores</h2>
             <p className="text-xs text-brand-gray-600">
-              Opcional. Cada cor tem preço, estoque e fotos próprios — o cliente escolhe a cor na
-              página do produto.
+              Opcional. Cada cor tem preço de venda, estoque e fotos próprios — o custo é o mesmo
+              do produto (definido acima). O cliente escolhe a cor na página do produto.
             </p>
           </div>
-          <ColorManager productId={produto.id} controleEstoque={controleEstoque} cores={produto.cores} />
+          <ColorManager
+            productId={produto.id}
+            controleEstoque={controleEstoque}
+            cores={produto.cores}
+            custoProduto={produto.precoCusto}
+          />
         </div>
       ) : null}
 
       {isEdit && produto ? (
-        <div className="flex flex-col gap-2 border-t border-brand-gray-200 pt-6">
+        <div className="mt-6 flex flex-col gap-2 border-t border-brand-gray-200 pt-6">
           <div>
             <h2 className="text-sm font-semibold text-brand-black">Fotos gerais</h2>
             <p className="text-xs text-brand-gray-600">
@@ -307,16 +326,10 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
           <PhotoManager productId={produto.id} photos={produto.fotos} />
         </div>
       ) : (
-        <p className="rounded-brand border border-brand-gray-200 bg-brand-gray-50 px-3 py-2 text-sm text-brand-gray-600">
+        <p className="mt-6 rounded-brand border border-brand-gray-200 bg-brand-gray-50 px-3 py-2 text-sm text-brand-gray-600">
           Salve o produto para poder cadastrar cores e enviar fotos.
         </p>
       )}
-
-      {state.error && <FieldError message={state.error} />}
-
-      <div className="flex gap-3">
-        <SubmitButton label={isEdit ? "Salvar alterações" : "Cadastrar produto"} />
-      </div>
-    </form>
+    </>
   );
 }
