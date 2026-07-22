@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -7,8 +6,8 @@ import { buildGenericInterestMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 export function Hero() {
   return (
     <section className="bg-brand-black">
-      <Container className="grid items-center gap-10 py-12 md:grid-cols-2 md:py-16">
-        <div className="flex flex-col gap-5">
+      <Container className="py-12 md:py-16">
+        <div className="flex max-w-2xl flex-col gap-5">
           <span className="inline-flex w-fit items-center rounded-brand bg-brand-red/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-red">
             Sorocaba e região
           </span>
@@ -36,17 +35,6 @@ export function Hero() {
               Falar no WhatsApp
             </Button>
           </div>
-        </div>
-
-        <div className="flex items-center justify-center">
-          <Image
-            src="/images/logo-outlet-premium.png"
-            alt="Outlet Premium Sorocaba"
-            width={420}
-            height={420}
-            priority
-            className="h-56 w-56 object-contain sm:h-72 sm:w-72 md:h-80 md:w-80"
-          />
         </div>
       </Container>
     </section>
