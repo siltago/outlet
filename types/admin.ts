@@ -5,6 +5,7 @@ export interface AdminCategoria {
   nome: string;
   slug: string;
   ordem: number;
+  icone: string | null;
 }
 
 export interface AdminProductPhoto {

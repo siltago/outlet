@@ -157,7 +157,7 @@ export async function listCategoriasAdmin(): Promise<AdminCategoria[]> {
 
   const { data, error } = await supabase
     .from("categorias")
-    .select("id, nome, slug, ordem")
+    .select("id, nome, slug, ordem, icone")
     .order("ordem", { ascending: true });
 
   if (error || !data) {
@@ -167,7 +167,11 @@ export async function listCategoriasAdmin(): Promise<AdminCategoria[]> {
   return data;
 }
 
-export async function createCategoria(values: { nome: string; slug: string }): Promise<{ id: string }> {
+export async function createCategoria(values: {
+  nome: string;
+  slug: string;
+  icone: string | null;
+}): Promise<{ id: string }> {
   await requireStaff();
   const supabase = await createClient();
 
@@ -177,7 +181,7 @@ export async function createCategoria(values: { nome: string; slug: string }): P
 
   const { data, error } = await supabase
     .from("categorias")
-    .insert({ nome: values.nome, slug: values.slug, ordem: (count ?? 0) + 1 })
+    .insert({ nome: values.nome, slug: values.slug, icone: values.icone, ordem: (count ?? 0) + 1 })
     .select("id")
     .single();
 
@@ -186,6 +190,26 @@ export async function createCategoria(values: { nome: string; slug: string }): P
   }
 
   return { id: data.id };
+}
+
+export async function updateCategoria(
+  id: string,
+  values: { nome: string; slug: string; icone: string | null },
+): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("categorias")
+    .update({ nome: values.nome, slug: values.slug, icone: values.icone })
+    .eq("id", id);
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("Já existe uma categoria com esse slug.");
+    }
+    throw new Error(error.message);
+  }
 }
 
 export async function deleteCategoria(id: string): Promise<void> {

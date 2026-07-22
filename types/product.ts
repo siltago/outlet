@@ -10,6 +10,7 @@ export interface Category {
   nome: string;
   slug: string;
   ordem: number;
+  icone: string | null;
 }
 
 export interface ProductColor {

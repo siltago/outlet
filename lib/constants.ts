@@ -3,6 +3,8 @@
 export const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5515900000000";
 
+export const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/DmNY3CgBn1jGexHtvBOOHS";
+
 export const SITE_NAME = "Outlet Premium Sorocaba";
 
 export const SITE_DESCRIPTION =

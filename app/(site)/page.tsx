@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { CategoryCard } from "@/components/catalog/CategoryCard";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { Hero } from "@/components/home/Hero";
+import { CommunityBand } from "@/components/home/CommunityBand";
 import { TrustSection } from "@/components/home/TrustSection";
 import { WhatsAppBand } from "@/components/home/WhatsAppBand";
 import { getCategories, getFeaturedProducts } from "@/lib/data";
@@ -50,6 +51,7 @@ export default async function HomePage() {
         </section>
       )}
 
+      <CommunityBand />
       <TrustSection />
       <WhatsAppBand />
     </>

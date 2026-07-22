@@ -41,6 +41,7 @@ export interface Database {
           nome: string;
           slug: string;
           ordem: number;
+          icone: string | null;
           criado_em: string;
           atualizado_em: string;
         };
@@ -49,6 +50,7 @@ export interface Database {
           nome: string;
           slug: string;
           ordem?: number;
+          icone?: string | null;
           criado_em?: string;
           atualizado_em?: string;
         };
@@ -57,6 +59,7 @@ export interface Database {
           nome?: string;
           slug?: string;
           ordem?: number;
+          icone?: string | null;
           criado_em?: string;
           atualizado_em?: string;
         };
@@ -177,7 +180,6 @@ export interface Database {
           id: string;
           produto_id: string;
           nome: string;
-          preco_custo: number | null;
           preco_venda: number;
           quantidade_atual: number | null;
           quantidade_minima: number | null;
@@ -189,7 +191,6 @@ export interface Database {
           id?: string;
           produto_id: string;
           nome: string;
-          preco_custo?: number | null;
           preco_venda: number;
           quantidade_atual?: number | null;
           quantidade_minima?: number | null;
@@ -201,7 +202,6 @@ export interface Database {
           id?: string;
           produto_id?: string;
           nome?: string;
-          preco_custo?: number | null;
           preco_venda?: number;
           quantidade_atual?: number | null;
           quantidade_minima?: number | null;

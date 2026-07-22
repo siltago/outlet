@@ -52,13 +52,23 @@ function CorFields({
   state,
   controleEstoque,
   defaults,
-  precoVendaSugerido,
+  sugestaoPrecoVenda,
 }: {
   state: CorFormState;
   controleEstoque: ControleEstoque;
   defaults?: CorDefaults;
-  precoVendaSugerido?: string;
+  sugestaoPrecoVenda?: number | null;
 }) {
+  // O preço de custo é único por produto (não varia por cor) — só o preço de
+  // venda muda. Para cor nova, sugere a mesma margem padrão sobre o custo do
+  // produto; para cor existente, mantém o valor já salvo.
+  const precoVendaInicial =
+    defaults?.precoVenda !== undefined
+      ? formatPriceInput(defaults.precoVenda)
+      : sugestaoPrecoVenda != null
+        ? formatPriceInput(sugestaoPrecoVenda)
+        : "";
+
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <label className="flex flex-col gap-1 sm:col-span-2">
@@ -81,11 +91,7 @@ function CorFields({
           name="precoVenda"
           required
           placeholder="0,00"
-          defaultValue={
-            defaults?.precoVenda !== undefined
-              ? formatPriceInput(defaults.precoVenda)
-              : (precoVendaSugerido ?? "")
-          }
+          defaultValue={precoVendaInicial}
           className={INPUT_CLASS}
         />
         {state.fieldErrors?.precoVenda && <FieldError message={state.fieldErrors.precoVenda} />}
@@ -130,11 +136,11 @@ function CorFields({
 function NovaCorForm({
   productId,
   controleEstoque,
-  produtoPrecoCusto,
+  custoProduto,
 }: {
   productId: string;
   controleEstoque: ControleEstoque;
-  produtoPrecoCusto: number | null;
+  custoProduto: number | null;
 }) {
   const action = createCorAction.bind(null, productId, controleEstoque);
   const [state, formAction] = useActionState(action, initialState);
@@ -150,10 +156,7 @@ function NovaCorForm({
     }
   }
 
-  // O custo não varia por cor (é o mesmo produto) — usa o custo cadastrado no
-  // produto só para sugerir um preço de venda com 15% de margem.
-  const precoVendaSugerido =
-    produtoPrecoCusto !== null ? formatPriceInput(produtoPrecoCusto * (1 + MARGEM_VENDA_PADRAO)) : undefined;
+  const sugestaoPrecoVenda = custoProduto != null ? custoProduto * (1 + MARGEM_VENDA_PADRAO) : null;
 
   return (
     <form
@@ -164,7 +167,7 @@ function NovaCorForm({
         key={resetKey}
         state={state}
         controleEstoque={controleEstoque}
-        precoVendaSugerido={precoVendaSugerido}
+        sugestaoPrecoVenda={sugestaoPrecoVenda}
       />
       {state.error && <FieldError message={state.error} />}
       <div>
@@ -237,23 +240,19 @@ export function ColorManager({
   productId,
   controleEstoque,
   cores,
-  produtoPrecoCusto,
+  custoProduto,
 }: {
   productId: string;
   controleEstoque: ControleEstoque;
   cores: AdminCor[];
-  produtoPrecoCusto: number | null;
+  custoProduto: number | null;
 }) {
   return (
     <div className="flex flex-col gap-4">
       {cores.map((cor) => (
         <CorCard key={cor.id} cor={cor} productId={productId} controleEstoque={controleEstoque} />
       ))}
-      <NovaCorForm
-        productId={productId}
-        controleEstoque={controleEstoque}
-        produtoPrecoCusto={produtoPrecoCusto}
-      />
+      <NovaCorForm productId={productId} controleEstoque={controleEstoque} custoProduto={custoProduto} />
     </div>
   );
 }

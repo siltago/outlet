@@ -11,7 +11,7 @@ export function CategoryCard({ category }: { category: Category }) {
     >
       <span className="flex items-center gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-brand bg-brand-gray-50 text-brand-black group-hover:bg-brand-red group-hover:text-brand-white">
-          <CategoryIcon slug={category.slug} className="h-5 w-5" aria-hidden="true" />
+          <CategoryIcon icone={category.icone} slug={category.slug} className="h-5 w-5" aria-hidden="true" />
         </span>
         <span className="font-semibold text-brand-black">{category.nome}</span>
       </span>
