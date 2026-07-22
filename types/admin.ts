@@ -17,7 +17,6 @@ export interface AdminProductPhoto {
 export interface AdminCor {
   id: string;
   nome: string;
-  precoCusto: number | null;
   precoVenda: number;
   quantidadeAtual: number | null;
   quantidadeMinima: number | null;

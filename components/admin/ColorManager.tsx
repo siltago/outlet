@@ -10,7 +10,7 @@ import {
   type CorFormState,
 } from "@/app/admin/(protected)/produtos/actions";
 import { PhotoManager } from "@/components/admin/PhotoManager";
-import { formatPriceInput, parsePriceInput } from "@/lib/format";
+import { formatPriceInput } from "@/lib/format";
 import type { AdminCor } from "@/types/admin";
 import type { ControleEstoque } from "@/types/database";
 
@@ -43,7 +43,6 @@ function SubmitButton({ label }: { label: string }) {
 
 interface CorDefaults {
   nome: string;
-  precoCusto: number | null;
   precoVenda: number;
   quantidadeAtual: number | null;
   quantidadeMinima: number | null;
@@ -53,28 +52,13 @@ function CorFields({
   state,
   controleEstoque,
   defaults,
+  precoVendaSugerido,
 }: {
   state: CorFormState;
   controleEstoque: ControleEstoque;
   defaults?: CorDefaults;
+  precoVendaSugerido?: string;
 }) {
-  const [precoCusto, setPrecoCusto] = useState(
-    defaults?.precoCusto !== null && defaults?.precoCusto !== undefined
-      ? formatPriceInput(defaults.precoCusto)
-      : "",
-  );
-  const [precoVenda, setPrecoVenda] = useState(
-    defaults?.precoVenda !== undefined ? formatPriceInput(defaults.precoVenda) : "",
-  );
-  const [vendaTouched, setVendaTouched] = useState(Boolean(defaults));
-
-  function handleCustoChange(value: string) {
-    setPrecoCusto(value);
-    if (vendaTouched) return;
-    const custo = parsePriceInput(value);
-    setPrecoVenda(custo === null ? "" : formatPriceInput(custo * (1 + MARGEM_VENDA_PADRAO)));
-  }
-
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <label className="flex flex-col gap-1 sm:col-span-2">
@@ -89,20 +73,7 @@ function CorFields({
         {state.fieldErrors?.nome && <FieldError message={state.fieldErrors.nome} />}
       </label>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-brand-black">Preço de custo</span>
-        <input
-          type="text"
-          inputMode="decimal"
-          name="precoCusto"
-          placeholder="0,00"
-          value={precoCusto}
-          onChange={(event) => handleCustoChange(event.target.value)}
-          className={INPUT_CLASS}
-        />
-      </label>
-
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1 sm:col-span-2">
         <span className="text-xs font-medium text-brand-black">Preço de venda</span>
         <input
           type="text"
@@ -110,11 +81,11 @@ function CorFields({
           name="precoVenda"
           required
           placeholder="0,00"
-          value={precoVenda}
-          onChange={(event) => {
-            setPrecoVenda(event.target.value);
-            setVendaTouched(true);
-          }}
+          defaultValue={
+            defaults?.precoVenda !== undefined
+              ? formatPriceInput(defaults.precoVenda)
+              : (precoVendaSugerido ?? "")
+          }
           className={INPUT_CLASS}
         />
         {state.fieldErrors?.precoVenda && <FieldError message={state.fieldErrors.precoVenda} />}
@@ -159,9 +130,11 @@ function CorFields({
 function NovaCorForm({
   productId,
   controleEstoque,
+  produtoPrecoCusto,
 }: {
   productId: string;
   controleEstoque: ControleEstoque;
+  produtoPrecoCusto: number | null;
 }) {
   const action = createCorAction.bind(null, productId, controleEstoque);
   const [state, formAction] = useActionState(action, initialState);
@@ -177,12 +150,22 @@ function NovaCorForm({
     }
   }
 
+  // O custo não varia por cor (é o mesmo produto) — usa o custo cadastrado no
+  // produto só para sugerir um preço de venda com 15% de margem.
+  const precoVendaSugerido =
+    produtoPrecoCusto !== null ? formatPriceInput(produtoPrecoCusto * (1 + MARGEM_VENDA_PADRAO)) : undefined;
+
   return (
     <form
       action={formAction}
       className="flex flex-col gap-3 rounded-brand border border-dashed border-brand-gray-300 p-4"
     >
-      <CorFields key={resetKey} state={state} controleEstoque={controleEstoque} />
+      <CorFields
+        key={resetKey}
+        state={state}
+        controleEstoque={controleEstoque}
+        precoVendaSugerido={precoVendaSugerido}
+      />
       {state.error && <FieldError message={state.error} />}
       <div>
         <SubmitButton label="Adicionar cor" />
@@ -254,17 +237,23 @@ export function ColorManager({
   productId,
   controleEstoque,
   cores,
+  produtoPrecoCusto,
 }: {
   productId: string;
   controleEstoque: ControleEstoque;
   cores: AdminCor[];
+  produtoPrecoCusto: number | null;
 }) {
   return (
     <div className="flex flex-col gap-4">
       {cores.map((cor) => (
         <CorCard key={cor.id} cor={cor} productId={productId} controleEstoque={controleEstoque} />
       ))}
-      <NovaCorForm productId={productId} controleEstoque={controleEstoque} />
+      <NovaCorForm
+        productId={productId}
+        controleEstoque={controleEstoque}
+        produtoPrecoCusto={produtoPrecoCusto}
+      />
     </div>
   );
 }

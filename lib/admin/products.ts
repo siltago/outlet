@@ -19,7 +19,7 @@ const PRODUTO_SELECT =
   "quantidade_atual, quantidade_reservada, quantidade_minima, preco_custo, preco_venda, " +
   "ativo, publicado, destaque, criado_em, atualizado_em, " +
   "categoria:categorias(nome, slug), fotos:produto_fotos(id, caminho, ordem, cor_id), " +
-  "cores:produto_cores(id, nome, preco_custo, preco_venda, quantidade_atual, quantidade_minima, ordem)";
+  "cores:produto_cores(id, nome, preco_venda, quantidade_atual, quantidade_minima, ordem)";
 
 type ProdutoJoinedRow = {
   id: string;
@@ -45,7 +45,6 @@ type ProdutoJoinedRow = {
     | {
         id: string;
         nome: string;
-        preco_custo: number | null;
         preco_venda: number;
         quantidade_atual: number | null;
         quantidade_minima: number | null;
@@ -101,7 +100,6 @@ function mapProductDetail(row: ProdutoJoinedRow): AdminProductDetail {
     .map((cor) => ({
       id: cor.id,
       nome: cor.nome,
-      precoCusto: cor.preco_custo === null ? null : Number(cor.preco_custo),
       precoVenda: Number(cor.preco_venda),
       quantidadeAtual: cor.quantidade_atual,
       quantidadeMinima: cor.quantidade_minima,
@@ -208,7 +206,6 @@ export async function deleteCategoria(id: string): Promise<void> {
 
 export interface CorValues {
   nome: string;
-  precoCusto: number | null;
   precoVenda: number;
   quantidadeAtual: number | null;
   quantidadeMinima: number | null;
@@ -228,7 +225,6 @@ export async function createCor(productId: string, values: CorValues): Promise<{
     .insert({
       produto_id: productId,
       nome: values.nome,
-      preco_custo: values.precoCusto,
       preco_venda: values.precoVenda,
       quantidade_atual: values.quantidadeAtual,
       quantidade_minima: values.quantidadeMinima,
@@ -255,7 +251,6 @@ export async function updateCor(corId: string, values: CorValues): Promise<void>
     .from("produto_cores")
     .update({
       nome: values.nome,
-      preco_custo: values.precoCusto,
       preco_venda: values.precoVenda,
       quantidade_atual: values.quantidadeAtual,
       quantidade_minima: values.quantidadeMinima,

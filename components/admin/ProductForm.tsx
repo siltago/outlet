@@ -292,7 +292,12 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
               página do produto.
             </p>
           </div>
-          <ColorManager productId={produto.id} controleEstoque={controleEstoque} cores={produto.cores} />
+          <ColorManager
+            productId={produto.id}
+            controleEstoque={controleEstoque}
+            cores={produto.cores}
+            produtoPrecoCusto={produto.precoCusto}
+          />
         </div>
       ) : null}
 
