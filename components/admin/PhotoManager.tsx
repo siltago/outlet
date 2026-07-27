@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import type { ClipboardEvent, DragEvent } from "react";
 import { ArrowDown, ArrowUp, ImagePlus, Star, Trash2 } from "lucide-react";
+import { cn } from "@/lib/cn";
 import {
   deleteProductPhotoAction,
   reorderProductPhotosAction,
@@ -28,14 +30,17 @@ export function PhotoManager({
   const [pending, setPending] = useState<{ key: string; previewUrl: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  async function handleFiles(fileList: FileList | null) {
-    if (!fileList || fileList.length === 0) return;
+  async function handleFiles(files: File[] | FileList | null) {
+    if (!files) return;
+    const list = Array.from(files);
+    if (list.length === 0) return;
     setError(null);
     setUploading(true);
 
-    for (const file of Array.from(fileList)) {
+    for (const file of list) {
       if (file.type === "image/svg+xml" || !ALLOWED_TYPES.includes(file.type)) {
         setError(`"${file.name}": formato não suportado (use PNG, JPEG ou WEBP).`);
         continue;
@@ -67,6 +72,23 @@ export function PhotoManager({
 
     setUploading(false);
     router.refresh();
+  }
+
+  function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
+    const files = Array.from(event.clipboardData?.items ?? [])
+      .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file !== null);
+
+    if (files.length === 0) return;
+    event.preventDefault();
+    handleFiles(files);
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragActive(false);
+    handleFiles(event.dataTransfer.files);
   }
 
   function handleDelete(photoId: string) {
@@ -104,22 +126,38 @@ export function PhotoManager({
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex w-fit cursor-pointer items-center gap-2 rounded-brand border border-dashed border-brand-gray-300 px-4 py-3 text-sm font-semibold text-brand-black transition-colors hover:border-brand-red">
-        <ImagePlus className="h-4 w-4" aria-hidden="true" />
-        {uploading ? "Enviando..." : "Adicionar fotos"}
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          multiple
-          className="hidden"
-          disabled={uploading}
-          onChange={(event) => handleFiles(event.target.files)}
-        />
-      </label>
+      <div
+        tabIndex={0}
+        onPaste={handlePaste}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setDragActive(true);
+        }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "flex flex-col items-start gap-2 rounded-brand border border-dashed px-4 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red",
+          dragActive ? "border-brand-red bg-brand-red/5" : "border-brand-gray-300",
+        )}
+      >
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-black hover:text-brand-red">
+          <ImagePlus className="h-4 w-4" aria-hidden="true" />
+          {uploading ? "Enviando..." : "Adicionar fotos"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+            className="hidden"
+            disabled={uploading}
+            onChange={(event) => handleFiles(event.target.files)}
+          />
+        </label>
 
-      <p className="text-xs text-brand-gray-600">
-        PNG, JPEG ou WEBP, até {MAX_SIZE_MB}MB cada. A primeira foto é a principal do catálogo.
-      </p>
+        <p className="text-xs text-brand-gray-600">
+          PNG, JPEG ou WEBP, até {MAX_SIZE_MB}MB cada. A primeira foto é a principal do catálogo.
+          Arraste e solte aqui, ou clique nesta área e cole (Ctrl+V) uma imagem copiada.
+        </p>
+      </div>
 
       {error && (
         <p role="alert" className="rounded-brand border border-brand-red/40 bg-brand-red/10 px-3 py-2 text-sm text-brand-red">
