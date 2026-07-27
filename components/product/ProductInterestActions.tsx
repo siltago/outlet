@@ -10,10 +10,15 @@ type Modality = "pronta_entrega" | "sob_encomenda";
 
 interface ProductInterestActionsProps {
   productName: string;
+  productSlug: string;
   availability: Availability;
 }
 
-export function ProductInterestActions({ productName, availability }: ProductInterestActionsProps) {
+export function ProductInterestActions({
+  productName,
+  productSlug,
+  availability,
+}: ProductInterestActionsProps) {
   const defaultModality: Modality = availability.prontaEntrega ? "pronta_entrega" : "sob_encomenda";
   const [modality, setModality] = useState<Modality>(defaultModality);
 
@@ -26,7 +31,7 @@ export function ProductInterestActions({ productName, availability }: ProductInt
   }
 
   const showModalityChoice = availability.prontaEntrega && availability.encomenda;
-  const message = buildProductInterestMessage(productName, modality);
+  const message = buildProductInterestMessage(productName, modality, productSlug);
   const href = buildWhatsAppUrl(message);
 
   return (

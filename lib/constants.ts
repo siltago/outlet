@@ -5,6 +5,14 @@ export const WHATSAPP_NUMBER =
 
 export const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/DmNY3CgBn1jGexHtvBOOHS";
 
+// Usada para montar links absolutos (ex: link do produto na mensagem do
+// WhatsApp). Troque via NEXT_PUBLIC_SITE_URL quando o domínio definitivo
+// estiver configurado.
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://outlet-ebon.vercel.app").replace(
+  /\/$/,
+  "",
+);
+
 export const SITE_NAME = "Outlet Premium Sorocaba";
 
 export const SITE_DESCRIPTION =

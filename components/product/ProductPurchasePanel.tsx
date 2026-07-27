@@ -72,7 +72,11 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
         />
 
         <div className="mt-2">
-          <ProductInterestActions productName={interestName} availability={availability} />
+          <ProductInterestActions
+            productName={interestName}
+            productSlug={product.slug}
+            availability={availability}
+          />
         </div>
       </div>
     </>
