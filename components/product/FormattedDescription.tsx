@@ -1,8 +1,12 @@
 import { Fragment, type ReactNode } from "react";
 
-// Formatação simples digitada pelo admin na descrição: **negrito** e >destaque<,
-// podendo aninhar um dentro do outro (ex: >**texto**< ou **>texto<**).
-// Nunca usa dangerouslySetInnerHTML — só monta elementos React a partir do texto.
+// Formatação simples digitada pelo admin na descrição: **negrito**, >destaque<
+// (podendo aninhar um dentro do outro, ex: >**texto**< ou **>texto<**) e uma
+// linha começando com "* " (um asterisco só, não "**") vira item de lista,
+// com o "*" trocado por "•". Nunca usa dangerouslySetInnerHTML — só monta
+// elementos React a partir do texto.
+
+const BULLET_LINE_PATTERN = /^\*(?!\*)\s+(.*)$/;
 
 function parseRange(
   text: string,
@@ -56,6 +60,17 @@ function parseRange(
 }
 
 function parseLine(line: string, keyPrefix: string): ReactNode[] {
+  const bulletMatch = BULLET_LINE_PATTERN.exec(line);
+  if (bulletMatch) {
+    const rest = bulletMatch[1];
+    return [
+      <span key={`${keyPrefix}-bullet`} className="mr-1.5">
+        •
+      </span>,
+      ...parseRange(rest, 0, rest.length, keyPrefix, { n: 0 }),
+    ];
+  }
+
   return parseRange(line, 0, line.length, keyPrefix, { n: 0 });
 }
 

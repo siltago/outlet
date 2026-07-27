@@ -160,9 +160,9 @@ export function ProductForm({ categorias, marcas, produto }: ProductFormProps) {
               className={INPUT_CLASS}
             />
             <span className="text-xs text-brand-gray-600">
-              Use <code>**texto**</code> para negrito e <code>&gt;texto&lt;</code> para destaque
-              (caixinha cinza) na página do produto — dá pra combinar, ex:{" "}
-              <code>&gt;**texto**&lt;</code>.
+              Use <code>**texto**</code> para negrito, <code>&gt;texto&lt;</code> para destaque
+              (caixinha cinza) e uma linha começando com <code>* </code> para item de lista — dá
+              pra combinar, ex: <code>&gt;**texto**&lt;</code>.
             </span>
           </label>
   
