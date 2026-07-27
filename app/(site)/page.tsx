@@ -43,8 +43,8 @@ export default async function HomePage() {
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {featuredProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={index < 4} />
               ))}
             </div>
           </Container>

@@ -4,6 +4,13 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      // Server Actions limitam o corpo da requisição a 1MB por padrão; o
+      // upload de fotos (uploadProductPhotoAction) aceita até 5MB por arquivo.
+      bodySizeLimit: "6mb",
+    },
+  },
   images: {
     // Next.js 16: só permite quality=75 por padrão; a galeria de produto usa
     // quality=90 para fotos maiores exibidas por inteiro (object-contain).

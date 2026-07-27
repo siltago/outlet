@@ -6,7 +6,13 @@ import { getAvailability } from "@/lib/availability";
 import { formatCurrencyBRL } from "@/lib/format";
 import type { ProductWithCategory } from "@/types/product";
 
-export function ProductCard({ product }: { product: ProductWithCategory }) {
+export function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: ProductWithCategory;
+  priority?: boolean;
+}) {
   const availability = getAvailability(product);
   const image = product.imagens[0] ?? "/images/products/placeholder-produto.png";
 
@@ -20,6 +26,7 @@ export function ProductCard({ product }: { product: ProductWithCategory }) {
           src={image}
           alt={product.nome}
           fill
+          priority={priority}
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
