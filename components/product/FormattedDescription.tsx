@@ -75,7 +75,9 @@ function parseLine(line: string, keyPrefix: string): ReactNode[] {
 }
 
 export function FormattedDescription({ text, className }: { text: string; className?: string }) {
-  const lines = text.split("\n");
+  // \r\n (textarea normaliza quebras de linha ao enviar o form) quebrava o
+  // parser: "$" em regex JS só reconhece "\n" como fim de linha, não "\r".
+  const lines = text.split(/\r\n|\r|\n/);
 
   return (
     <p className={className}>

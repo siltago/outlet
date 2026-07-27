@@ -11,7 +11,15 @@ export const productFormSchema = z
       .min(2, "Informe o slug.")
       .max(160)
       .regex(SLUG_PATTERN, "Use apenas letras minúsculas, números e hífens."),
-    descricao: z.string().trim().max(4000).default(""),
+    // Normaliza \r\n/\r para \n — textarea envia CRLF, e isso quebrava o
+    // parser de **negrito**/lista em FormattedDescription (regex JS só
+    // reconhece \n como fim de linha).
+    descricao: z
+      .string()
+      .trim()
+      .max(4000)
+      .transform((value) => value.replace(/\r\n|\r/g, "\n"))
+      .default(""),
     categoriaId: z.string().uuid("Selecione uma categoria."),
     marcaId: z.string().uuid("Marca inválida.").nullable(),
     modalidadeVenda: z.enum(["pronta_entrega", "sob_encomenda", "ambos"], {
