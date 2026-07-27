@@ -47,6 +47,9 @@ function revalidateCatalog() {
   revalidatePath("/admin/produtos");
   revalidatePath("/catalogo");
   revalidatePath("/");
+  // Revalida todas as páginas de produto (/produto/[slug]) de uma vez —
+  // sem isso, editar um produto não atualizava a própria página pública dele.
+  revalidatePath("/(site)/produto/[slug]", "page");
 }
 
 export async function createProductAction(
@@ -253,6 +256,7 @@ export async function uploadProductPhotoAction(
 
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/catalogo");
+  revalidatePath("/(site)/produto/[slug]", "page");
   return {
     error: null,
     photo: { id: photoId, caminho: path, url: buildProductPhotoUrl(path), ordem },
@@ -275,6 +279,7 @@ export async function deleteProductPhotoAction(
 
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/catalogo");
+  revalidatePath("/(site)/produto/[slug]", "page");
   return { error: null };
 }
 
@@ -292,5 +297,6 @@ export async function reorderProductPhotosAction(
 
   revalidatePath(`/admin/produtos/${productId}`);
   revalidatePath("/catalogo");
+  revalidatePath("/(site)/produto/[slug]", "page");
   return { error: null };
 }
