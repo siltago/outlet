@@ -13,7 +13,7 @@ import {
 } from "@/app/admin/(protected)/produtos/actions";
 import type { AdminProductPhoto } from "@/types/admin";
 
-const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
 const MAX_SIZE_MB = 5;
 
 export function PhotoManager({
@@ -42,7 +42,7 @@ export function PhotoManager({
 
     for (const file of list) {
       if (file.type === "image/svg+xml" || !ALLOWED_TYPES.includes(file.type)) {
-        setError(`"${file.name}": formato não suportado (use PNG, JPEG ou WEBP).`);
+        setError(`"${file.name}": formato não suportado (use PNG, JPEG, WEBP ou AVIF).`);
         continue;
       }
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -145,7 +145,7 @@ export function PhotoManager({
           {uploading ? "Enviando..." : "Adicionar fotos"}
           <input
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/png,image/jpeg,image/webp,image/avif"
             multiple
             className="hidden"
             disabled={uploading}
@@ -154,7 +154,7 @@ export function PhotoManager({
         </label>
 
         <p className="text-xs text-brand-gray-600">
-          PNG, JPEG ou WEBP, até {MAX_SIZE_MB}MB cada. A primeira foto é a principal do catálogo.
+          PNG, JPEG, WEBP ou AVIF, até {MAX_SIZE_MB}MB cada. A primeira foto é a principal do catálogo.
           Arraste e solte aqui, ou clique nesta área e cole (Ctrl+V) uma imagem copiada.
         </p>
       </div>

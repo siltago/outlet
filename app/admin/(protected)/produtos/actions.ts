@@ -31,7 +31,7 @@ export interface CorFormState {
   fieldErrors?: Record<string, string>;
 }
 
-const ALLOWED_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const ALLOWED_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
 
 function flattenZodError(error: ZodError): Record<string, string> {
@@ -215,7 +215,10 @@ export async function uploadProductPhotoAction(
     return { error: "Selecione um arquivo.", photo: null };
   }
   if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
-    return { error: "Formato não suportado. Use PNG, JPEG ou WEBP (SVG não é aceito).", photo: null };
+    return {
+      error: "Formato não suportado. Use PNG, JPEG, WEBP ou AVIF (SVG não é aceito).",
+      photo: null,
+    };
   }
   if (file.size > MAX_PHOTO_SIZE_BYTES) {
     return { error: "Arquivo maior que 5MB.", photo: null };
