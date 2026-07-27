@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { ProductForm } from "@/components/admin/ProductForm";
-import { listCategoriasAdmin } from "@/lib/admin/products";
+import { listCategoriasAdmin, listMarcasAdmin } from "@/lib/admin/products";
 
 export const metadata: Metadata = {
   title: "Novo produto",
 };
 
 export default async function NovoProdutoPage() {
-  const categorias = await listCategoriasAdmin();
+  const [categorias, marcas] = await Promise.all([listCategoriasAdmin(), listMarcasAdmin()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -17,7 +17,7 @@ export default async function NovoProdutoPage() {
       </div>
 
       <div className="rounded-brand border border-brand-gray-200 bg-brand-white p-4 sm:p-6">
-        <ProductForm categorias={categorias} />
+        <ProductForm categorias={categorias} marcas={marcas} />
       </div>
     </div>
   );

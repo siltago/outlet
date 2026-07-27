@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ProductFilters } from "@/components/admin/ProductFilters";
 import { ProductTable } from "@/components/admin/ProductTable";
-import { listCategoriasAdmin, listProducts } from "@/lib/admin/products";
+import { listCategoriasAdmin, listMarcasAdmin, listProducts } from "@/lib/admin/products";
 import type { ModalidadeVenda } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -14,6 +14,7 @@ interface ProdutosPageProps {
   searchParams: Promise<{
     busca?: string;
     categoria?: string;
+    marca?: string;
     modalidade?: string;
     ativo?: string;
     publicado?: string;
@@ -23,15 +24,17 @@ interface ProdutosPageProps {
 export default async function ProdutosPage({ searchParams }: ProdutosPageProps) {
   const params = await searchParams;
 
-  const [produtos, categorias] = await Promise.all([
+  const [produtos, categorias, marcas] = await Promise.all([
     listProducts({
       busca: params.busca,
       categoriaId: params.categoria,
+      marcaId: params.marca,
       modalidade: (params.modalidade as ModalidadeVenda | "todas" | undefined) ?? "todas",
       ativo: (params.ativo as "todos" | "ativo" | "inativo" | undefined) ?? "todos",
       publicado: (params.publicado as "todos" | "publicado" | "rascunho" | undefined) ?? "todos",
     }),
     listCategoriasAdmin(),
+    listMarcasAdmin(),
   ]);
 
   return (
@@ -49,7 +52,7 @@ export default async function ProdutosPage({ searchParams }: ProdutosPageProps) 
         </Button>
       </div>
 
-      <ProductFilters categorias={categorias} />
+      <ProductFilters categorias={categorias} marcas={marcas} />
 
       <ProductTable produtos={produtos} />
     </div>

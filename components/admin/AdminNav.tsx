@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, LogOut, Menu, Package, Tags, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Package, Tag, Tags, X } from "lucide-react";
 import { logout } from "@/app/admin/login/actions";
 import { cn } from "@/lib/cn";
 import type { StaffProfile } from "@/lib/auth/session";
@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/produtos", label: "Produtos", icon: Package },
   { href: "/admin/categorias", label: "Categorias", icon: Tags },
+  { href: "/admin/marcas", label: "Marcas", icon: Tag },
 ];
 
 function isActive(pathname: string, href: string) {

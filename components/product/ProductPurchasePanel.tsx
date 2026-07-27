@@ -33,6 +33,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
       <div className="flex flex-col gap-4">
         <span className="text-xs font-medium uppercase tracking-wide text-brand-gray-600">
           {product.categoria.nome}
+          {product.marca && ` · ${product.marca.nome}`}
         </span>
         <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">{product.nome}</h1>
         <AvailabilityBadge availability={availability} />

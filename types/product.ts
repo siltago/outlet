@@ -13,6 +13,13 @@ export interface Category {
   icone: string | null;
 }
 
+export interface Marca {
+  id: string;
+  nome: string;
+  slug: string;
+  ordem: number;
+}
+
 export interface ProductColor {
   id: string;
   nome: string;
@@ -27,6 +34,7 @@ export interface Product {
   slug: string;
   descricao: string;
   categoriaSlug: string;
+  marcaSlug?: string | null;
   modalidadeVenda: SaleModality;
   controleEstoque: StockControl;
   quantidadeAtual: number | null;
@@ -41,4 +49,5 @@ export interface Product {
 
 export interface ProductWithCategory extends Product {
   categoria: Category;
+  marca: Marca | null;
 }

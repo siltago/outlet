@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { CatalogClient } from "@/components/catalog/CatalogClient";
-import { getCategories, getProducts } from "@/lib/data";
+import { getCategories, getMarcas, getProducts } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Catálogo",
@@ -10,7 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogoPage() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const [products, categories, marcas] = await Promise.all([
+    getProducts(),
+    getCategories(),
+    getMarcas(),
+  ]);
 
   return (
     <section className="py-10">
@@ -21,7 +25,7 @@ export default async function CatalogoPage() {
             Produtos selecionados com pronta entrega e sob encomenda.
           </p>
         </div>
-        <CatalogClient products={products} categories={categories} />
+        <CatalogClient products={products} categories={categories} marcas={marcas} />
       </Container>
     </section>
   );

@@ -13,6 +13,7 @@ export const productFormSchema = z
       .regex(SLUG_PATTERN, "Use apenas letras minúsculas, números e hífens."),
     descricao: z.string().trim().max(4000).default(""),
     categoriaId: z.string().uuid("Selecione uma categoria."),
+    marcaId: z.string().uuid("Marca inválida.").nullable(),
     modalidadeVenda: z.enum(["pronta_entrega", "sob_encomenda", "ambos"], {
       message: "Selecione a modalidade de venda.",
     }),
@@ -99,6 +100,7 @@ export function parseProductFormData(formData: FormData) {
     slug: formData.get("slug") ?? "",
     descricao: formData.get("descricao") ?? "",
     categoriaId: formData.get("categoriaId") ?? "",
+    marcaId: emptyToNull(formData.get("marcaId")),
     modalidadeVenda: formData.get("modalidadeVenda") ?? "",
     controleEstoque: formData.get("controleEstoque") ?? "",
     quantidadeAtual: emptyToNull(formData.get("quantidadeAtual")),

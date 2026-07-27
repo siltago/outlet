@@ -31,6 +31,7 @@ export function ProductCard({ product }: { product: ProductWithCategory }) {
       <div className="flex flex-1 flex-col gap-1 p-4">
         <span className="text-xs font-medium uppercase tracking-wide text-brand-gray-600">
           {product.categoria.nome}
+          {product.marca && ` · ${product.marca.nome}`}
         </span>
         <h3 className="text-sm font-semibold text-brand-black">
           <Link href={`/produto/${product.slug}`} className="hover:text-brand-red">

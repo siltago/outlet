@@ -2,9 +2,15 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
-import type { AdminCategoria } from "@/types/admin";
+import type { AdminCategoria, AdminMarca } from "@/types/admin";
 
-export function ProductFilters({ categorias }: { categorias: AdminCategoria[] }) {
+export function ProductFilters({
+  categorias,
+  marcas,
+}: {
+  categorias: AdminCategoria[];
+  marcas: AdminMarca[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,6 +47,19 @@ export function ProductFilters({ categorias }: { categorias: AdminCategoria[] })
         {categorias.map((categoria) => (
           <option key={categoria.id} value={categoria.id}>
             {categoria.nome}
+          </option>
+        ))}
+      </select>
+
+      <select
+        defaultValue={searchParams.get("marca") ?? ""}
+        onChange={(event) => updateParam("marca", event.target.value)}
+        className="rounded-brand border border-brand-gray-200 px-3 py-2 text-sm"
+      >
+        <option value="">Todas as marcas</option>
+        {marcas.map((marca) => (
+          <option key={marca.id} value={marca.id}>
+            {marca.nome}
           </option>
         ))}
       </select>

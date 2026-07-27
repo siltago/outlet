@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { PackageX, Search } from "lucide-react";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { getAvailability, type AvailabilityState } from "@/lib/availability";
-import type { Category, ProductWithCategory } from "@/types/product";
+import type { Category, Marca, ProductWithCategory } from "@/types/product";
 
 type SortOption = "relevancia" | "menor-preco" | "maior-preco" | "nome";
 type AvailabilityFilter = "todas" | AvailabilityState;
@@ -26,16 +26,19 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 interface CatalogClientProps {
   products: ProductWithCategory[];
   categories: Category[];
+  marcas?: Marca[];
   showCategoryFilter?: boolean;
 }
 
 export function CatalogClient({
   products,
   categories,
+  marcas = [],
   showCategoryFilter = true,
 }: CatalogClientProps) {
   const [search, setSearch] = useState("");
   const [categorySlug, setCategorySlug] = useState("todas");
+  const [marcaSlug, setMarcaSlug] = useState("todas");
   const [availability, setAvailability] = useState<AvailabilityFilter>("todas");
   const [sort, setSort] = useState<SortOption>("relevancia");
 
@@ -45,9 +48,10 @@ export function CatalogClient({
     const filtered = products.filter((product) => {
       const matchesSearch = query.length === 0 || product.nome.toLowerCase().includes(query);
       const matchesCategory = categorySlug === "todas" || product.categoriaSlug === categorySlug;
+      const matchesMarca = marcaSlug === "todas" || product.marcaSlug === marcaSlug;
       const matchesAvailability =
         availability === "todas" || getAvailability(product).state === availability;
-      return matchesSearch && matchesCategory && matchesAvailability;
+      return matchesSearch && matchesCategory && matchesMarca && matchesAvailability;
     });
 
     const sorted = [...filtered];
@@ -65,11 +69,13 @@ export function CatalogClient({
         break;
     }
     return sorted;
-  }, [products, search, categorySlug, availability, sort]);
+  }, [products, search, categorySlug, marcaSlug, availability, sort]);
+
+  const showMarcaFilter = marcas.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         <label className="relative sm:col-span-2 lg:col-span-1">
           <span className="sr-only">Buscar produto por nome</span>
           <Search
@@ -97,6 +103,24 @@ export function CatalogClient({
               {categories.map((category) => (
                 <option key={category.id} value={category.slug}>
                   {category.nome}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
+        {showMarcaFilter && (
+          <label>
+            <span className="sr-only">Filtrar por marca</span>
+            <select
+              value={marcaSlug}
+              onChange={(event) => setMarcaSlug(event.target.value)}
+              className="w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black focus:border-brand-red focus:outline-none"
+            >
+              <option value="todas">Todas as marcas</option>
+              {marcas.map((marca) => (
+                <option key={marca.id} value={marca.slug}>
+                  {marca.nome}
                 </option>
               ))}
             </select>

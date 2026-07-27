@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductForm } from "@/components/admin/ProductForm";
-import { getProductById, listCategoriasAdmin } from "@/lib/admin/products";
+import { getProductById, listCategoriasAdmin, listMarcasAdmin } from "@/lib/admin/products";
 
 interface EditarProdutoPageProps {
   params: Promise<{ id: string }>;
@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 export default async function EditarProdutoPage({ params }: EditarProdutoPageProps) {
   const { id } = await params;
 
-  const [produto, categorias] = await Promise.all([getProductById(id), listCategoriasAdmin()]);
+  const [produto, categorias, marcas] = await Promise.all([
+    getProductById(id),
+    listCategoriasAdmin(),
+    listMarcasAdmin(),
+  ]);
 
   if (!produto) notFound();
 
@@ -26,7 +30,7 @@ export default async function EditarProdutoPage({ params }: EditarProdutoPagePro
       </div>
 
       <div className="rounded-brand border border-brand-gray-200 bg-brand-white p-4 sm:p-6">
-        <ProductForm categorias={categorias} produto={produto} />
+        <ProductForm categorias={categorias} marcas={marcas} produto={produto} />
       </div>
     </div>
   );

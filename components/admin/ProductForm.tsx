@@ -10,7 +10,7 @@ import {
 import { ColorManager } from "@/components/admin/ColorManager";
 import { PhotoManager } from "@/components/admin/PhotoManager";
 import { formatPriceInput, parsePriceInput } from "@/lib/format";
-import type { AdminCategoria, AdminProductDetail } from "@/types/admin";
+import type { AdminCategoria, AdminMarca, AdminProductDetail } from "@/types/admin";
 import type { ModalidadeVenda } from "@/types/database";
 
 const initialState: ProductFormState = { error: null };
@@ -75,10 +75,11 @@ function SubmitButton({ label }: { label: string }) {
 
 interface ProductFormProps {
   categorias: AdminCategoria[];
+  marcas: AdminMarca[];
   produto?: AdminProductDetail;
 }
 
-export function ProductForm({ categorias, produto }: ProductFormProps) {
+export function ProductForm({ categorias, marcas, produto }: ProductFormProps) {
   const isEdit = Boolean(produto);
   const action = isEdit ? updateProductAction.bind(null, produto!.id) : createProductAction;
   const [state, formAction] = useActionState(action, initialState);
@@ -184,7 +185,20 @@ export function ProductForm({ categorias, produto }: ProductFormProps) {
             </select>
             {state.fieldErrors?.categoriaId && <FieldError message={state.fieldErrors.categoriaId} />}
           </label>
-  
+
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-brand-black">Marca</span>
+            <select name="marcaId" defaultValue={produto?.marcaId ?? ""} className={INPUT_CLASS}>
+              <option value="">Sem marca</option>
+              {marcas.map((marca) => (
+                <option key={marca.id} value={marca.id}>
+                  {marca.nome}
+                </option>
+              ))}
+            </select>
+            {state.fieldErrors?.marcaId && <FieldError message={state.fieldErrors.marcaId} />}
+          </label>
+
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-brand-black">Modalidade de venda</span>
             <select

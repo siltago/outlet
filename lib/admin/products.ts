@@ -7,6 +7,7 @@ import type { ProductFormValues } from "@/lib/validation/product";
 import type {
   AdminCategoria,
   AdminCor,
+  AdminMarca,
   AdminProduct,
   AdminProductDetail,
   AdminProductPhoto,
@@ -15,10 +16,11 @@ import type {
 } from "@/types/admin";
 
 const PRODUTO_SELECT =
-  "id, nome, slug, descricao, categoria_id, modalidade_venda, controle_estoque, " +
+  "id, nome, slug, descricao, categoria_id, marca_id, modalidade_venda, controle_estoque, " +
   "quantidade_atual, quantidade_reservada, quantidade_minima, preco_custo, preco_venda, " +
   "ativo, publicado, destaque, criado_em, atualizado_em, " +
-  "categoria:categorias(nome, slug), fotos:produto_fotos(id, caminho, ordem, cor_id), " +
+  "categoria:categorias(nome, slug), marca:marcas(nome, slug), " +
+  "fotos:produto_fotos(id, caminho, ordem, cor_id), " +
   "cores:produto_cores(id, nome, preco_venda, quantidade_atual, quantidade_minima, ordem)";
 
 type ProdutoJoinedRow = {
@@ -27,6 +29,7 @@ type ProdutoJoinedRow = {
   slug: string;
   descricao: string;
   categoria_id: string;
+  marca_id: string | null;
   modalidade_venda: AdminProduct["modalidadeVenda"];
   controle_estoque: AdminProduct["controleEstoque"];
   quantidade_atual: number | null;
@@ -40,6 +43,7 @@ type ProdutoJoinedRow = {
   criado_em: string;
   atualizado_em: string;
   categoria: { nome: string; slug: string } | null;
+  marca: { nome: string; slug: string } | null;
   fotos: { id: string; caminho: string; ordem: number; cor_id: string | null }[] | null;
   cores:
     | {
@@ -72,6 +76,9 @@ function mapProduct(row: ProdutoJoinedRow): AdminProduct {
     categoriaId: row.categoria_id,
     categoriaNome: row.categoria?.nome ?? "",
     categoriaSlug: row.categoria?.slug ?? "",
+    marcaId: row.marca_id,
+    marcaNome: row.marca?.nome ?? null,
+    marcaSlug: row.marca?.slug ?? null,
     modalidadeVenda: row.modalidade_venda,
     controleEstoque: row.controle_estoque,
     quantidadeAtual: row.quantidade_atual,
@@ -228,6 +235,72 @@ export async function deleteCategoria(id: string): Promise<void> {
   }
 }
 
+export async function listMarcasAdmin(): Promise<AdminMarca[]> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("marcas")
+    .select("id, nome, slug, ordem")
+    .order("ordem", { ascending: true });
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Não foi possível carregar marcas.");
+  }
+
+  return data;
+}
+
+export async function createMarca(values: { nome: string; slug: string }): Promise<{ id: string }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { count } = await supabase.from("marcas").select("id", { count: "exact", head: true });
+
+  const { data, error } = await supabase
+    .from("marcas")
+    .insert({ nome: values.nome, slug: values.slug, ordem: (count ?? 0) + 1 })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    if (error?.code === "23505") {
+      throw new Error("Já existe uma marca com esse slug.");
+    }
+    throw new Error(error?.message ?? "Não foi possível criar a marca.");
+  }
+
+  return { id: data.id };
+}
+
+export async function updateMarca(id: string, values: { nome: string; slug: string }): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("marcas")
+    .update({ nome: values.nome, slug: values.slug })
+    .eq("id", id);
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("Já existe uma marca com esse slug.");
+    }
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteMarca(id: string): Promise<void> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("marcas").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export interface CorValues {
   nome: string;
   precoVenda: number;
@@ -319,6 +392,9 @@ export async function listProducts(filters: ProductListFilters = {}): Promise<Ad
   if (filters.categoriaId) {
     query = query.eq("categoria_id", filters.categoriaId);
   }
+  if (filters.marcaId) {
+    query = query.eq("marca_id", filters.marcaId);
+  }
   if (filters.modalidade && filters.modalidade !== "todas") {
     query = query.eq("modalidade_venda", filters.modalidade);
   }
@@ -366,6 +442,7 @@ function toInsertPayload(values: ProductFormValues) {
     slug: values.slug,
     descricao: values.descricao,
     categoria_id: values.categoriaId,
+    marca_id: values.marcaId,
     modalidade_venda: values.modalidadeVenda,
     controle_estoque: values.controleEstoque,
     quantidade_atual: values.quantidadeAtual,

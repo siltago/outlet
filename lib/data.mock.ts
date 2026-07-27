@@ -1,17 +1,19 @@
 import { categories } from "@/data/categories";
 import { products } from "@/data/products";
-import type { Category, Product, ProductWithCategory } from "@/types/product";
+import type { Category, Marca, Product, ProductWithCategory } from "@/types/product";
 
 // Fallback de desenvolvimento: mesma interface de `lib/data.ts`, mas lendo os
 // mocks em `data/`. Usado só quando as variáveis do Supabase não estão
 // configuradas em ambiente de desenvolvimento (ver `lib/data.ts`).
+//
+// Não há mock de marcas ainda — produtos mock ficam sem marca (campo opcional).
 
 function withCategory(product: Product): ProductWithCategory {
   const categoria = categories.find((c) => c.slug === product.categoriaSlug);
   if (!categoria) {
     throw new Error(`Categoria não encontrada para o produto ${product.slug}`);
   }
-  return { ...product, categoria };
+  return { ...product, categoria, marca: null };
 }
 
 function isPublished(product: Product): boolean {
@@ -20,6 +22,10 @@ function isPublished(product: Product): boolean {
 
 export async function getCategories(): Promise<Category[]> {
   return [...categories].sort((a, b) => a.ordem - b.ordem);
+}
+
+export async function getMarcas(): Promise<Marca[]> {
+  return [];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {

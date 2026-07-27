@@ -8,6 +8,13 @@ export interface AdminCategoria {
   icone: string | null;
 }
 
+export interface AdminMarca {
+  id: string;
+  nome: string;
+  slug: string;
+  ordem: number;
+}
+
 export interface AdminProductPhoto {
   id: string;
   caminho: string;
@@ -33,6 +40,9 @@ export interface AdminProduct {
   categoriaId: string;
   categoriaNome: string;
   categoriaSlug: string;
+  marcaId: string | null;
+  marcaNome: string | null;
+  marcaSlug: string | null;
   modalidadeVenda: ModalidadeVenda;
   controleEstoque: ControleEstoque;
   quantidadeAtual: number | null;
@@ -56,6 +66,7 @@ export interface AdminProductDetail extends AdminProduct {
 export interface ProductListFilters {
   busca?: string;
   categoriaId?: string;
+  marcaId?: string;
   modalidade?: ModalidadeVenda | "todas";
   ativo?: "todos" | "ativo" | "inativo";
   publicado?: "todos" | "publicado" | "rascunho";

@@ -65,6 +65,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      marcas: {
+        Row: {
+          id: string;
+          nome: string;
+          slug: string;
+          ordem: number;
+          criado_em: string;
+          atualizado_em: string;
+        };
+        Insert: {
+          id?: string;
+          nome: string;
+          slug: string;
+          ordem?: number;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+        Update: {
+          id?: string;
+          nome?: string;
+          slug?: string;
+          ordem?: number;
+          criado_em?: string;
+          atualizado_em?: string;
+        };
+        Relationships: [];
+      };
       produtos: {
         Row: {
           id: string;
@@ -72,6 +99,7 @@ export interface Database {
           slug: string;
           descricao: string;
           categoria_id: string;
+          marca_id: string | null;
           modalidade_venda: ModalidadeVenda;
           controle_estoque: ControleEstoque;
           quantidade_atual: number | null;
@@ -91,6 +119,7 @@ export interface Database {
           slug: string;
           descricao?: string;
           categoria_id: string;
+          marca_id?: string | null;
           modalidade_venda: ModalidadeVenda;
           controle_estoque: ControleEstoque;
           quantidade_atual?: number | null;
@@ -110,6 +139,7 @@ export interface Database {
           slug?: string;
           descricao?: string;
           categoria_id?: string;
+          marca_id?: string | null;
           modalidade_venda?: ModalidadeVenda;
           controle_estoque?: ControleEstoque;
           quantidade_atual?: number | null;
@@ -129,6 +159,13 @@ export interface Database {
             columns: ["categoria_id"];
             isOneToOne: false;
             referencedRelation: "categorias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "produtos_marca_id_fkey";
+            columns: ["marca_id"];
+            isOneToOne: false;
+            referencedRelation: "marcas";
             referencedColumns: ["id"];
           },
         ];
@@ -230,6 +267,9 @@ export interface Database {
           categoria_id: string;
           categoria_nome: string;
           categoria_slug: string;
+          marca_id: string | null;
+          marca_nome: string | null;
+          marca_slug: string | null;
           modalidade_venda: ModalidadeVenda;
           controle_estoque: ControleEstoque;
           quantidade_disponivel: number | null;

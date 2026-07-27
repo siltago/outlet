@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/supabase/config";
 import { buildProductPhotoUrl } from "@/lib/supabase/storage";
 import * as mock from "@/lib/data.mock";
-import type { Category, ProductWithCategory } from "@/types/product";
+import type { Category, Marca, ProductWithCategory } from "@/types/product";
 import type { Database } from "@/types/database";
 
 // Camada de acesso a dados do catálogo público. Lê de `vw_catalogo_publico`
@@ -46,6 +46,7 @@ function mapRow(row: CatalogRow): ProductWithCategory {
     slug: row.slug,
     descricao: row.descricao,
     categoriaSlug: row.categoria_slug,
+    marcaSlug: row.marca_slug,
     modalidadeVenda: row.modalidade_venda,
     controleEstoque: row.controle_estoque,
     quantidadeAtual: row.quantidade_disponivel,
@@ -62,6 +63,10 @@ function mapRow(row: CatalogRow): ProductWithCategory {
       ordem: 0,
       icone: null,
     },
+    marca:
+      row.marca_id && row.marca_nome && row.marca_slug
+        ? { id: row.marca_id, nome: row.marca_nome, slug: row.marca_slug, ordem: 0 }
+        : null,
   };
 }
 
@@ -122,6 +127,23 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   if (error) {
     warnMockFallback(`erro ao consultar categoria (${error.message})`);
     return mock.getCategoryBySlug(slug);
+  }
+
+  return data;
+}
+
+export async function getMarcas(): Promise<Marca[]> {
+  const supabase = await getPublicClient();
+  if (!supabase) return mock.getMarcas();
+
+  const { data, error } = await supabase
+    .from("marcas")
+    .select("id, nome, slug, ordem")
+    .order("ordem", { ascending: true });
+
+  if (error || !data) {
+    warnMockFallback(`erro ao consultar marcas (${error?.message ?? "sem dados"})`);
+    return mock.getMarcas();
   }
 
   return data;
