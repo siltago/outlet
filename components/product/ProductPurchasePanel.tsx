@@ -38,6 +38,9 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
         <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">{product.nome}</h1>
         <AvailabilityBadge availability={availability} />
         <p className="text-3xl font-extrabold text-brand-black">{formatCurrencyBRL(precoVenda)}</p>
+        <p className="w-fit rounded-brand bg-brand-gray-50 px-2 py-1 text-[11px] leading-snug text-brand-gray-600">
+          Preço sujeito a alteração de valor e condição de pagamento.
+        </p>
 
         {cores.length > 0 && (
           <div className="flex flex-col gap-2">
