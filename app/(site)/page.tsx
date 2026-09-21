@@ -20,8 +20,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Com banners ativos, o carrossel ocupa o topo; sem eles, a capa padrão. */}
-      {banners.length > 0 ? <BannerCarousel banners={banners} /> : <Hero />}
+      <Hero />
 
       <section className="py-16">
         <Container>
@@ -35,6 +34,12 @@ export default async function HomePage() {
           </div>
         </Container>
       </section>
+
+      {banners.length > 0 && (
+        <div className="pb-16">
+          <BannerCarousel banners={banners} />
+        </div>
+      )}
 
       {featuredProducts.length > 0 && (
         <section className="pb-16">
