@@ -92,6 +92,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      banners: {
+        Row: {
+          id: string;
+          imagem_caminho: string;
+          imagem_mobile_caminho: string | null;
+          link: string | null;
+          ordem: number;
+          ativo: boolean;
+          criado_em: string;
+        };
+        Insert: {
+          id?: string;
+          imagem_caminho: string;
+          imagem_mobile_caminho?: string | null;
+          link?: string | null;
+          ordem?: number;
+          ativo?: boolean;
+          criado_em?: string;
+        };
+        Update: {
+          id?: string;
+          imagem_caminho?: string;
+          imagem_mobile_caminho?: string | null;
+          link?: string | null;
+          ordem?: number;
+          ativo?: boolean;
+          criado_em?: string;
+        };
+        Relationships: [];
+      };
       produtos: {
         Row: {
           id: string;

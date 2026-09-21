@@ -26,16 +26,16 @@ const BENEFITS = [
 
 export function TrustSection() {
   return (
-    <section className="bg-brand-gray-50 py-14">
+    <section className="border-t border-brand-line py-16">
       <Container>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {BENEFITS.map((benefit) => (
             <div key={benefit.title} className="flex flex-col gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-brand bg-brand-black text-brand-white">
+              <span className="flex h-11 w-11 items-center justify-center rounded-brand border border-brand-line bg-brand-surface text-brand-red">
                 <benefit.icon className="h-5 w-5" aria-hidden="true" />
               </span>
-              <h3 className="font-semibold text-brand-black">{benefit.title}</h3>
-              <p className="text-sm text-brand-gray-600">{benefit.description}</p>
+              <h3 className="display text-sm text-brand-white">{benefit.title}</h3>
+              <p className="text-sm text-brand-gray-400">{benefit.description}</p>
             </div>
           ))}
         </div>

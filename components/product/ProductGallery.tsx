@@ -10,7 +10,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-square w-full overflow-hidden rounded-brand bg-brand-gray-50">
+      <div className="relative aspect-square w-full overflow-hidden rounded-brand bg-brand-surface">
         <Image
           src={gallery[active]}
           alt={name}
@@ -34,7 +34,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
               onClick={() => setActive(index)}
               className={cn(
                 "relative h-16 w-16 shrink-0 overflow-hidden rounded-brand border-2 transition-colors",
-                active === index ? "border-brand-red" : "border-brand-gray-200",
+                active === index ? "border-brand-red" : "border-brand-line",
               )}
             >
               <Image src={image} alt="" fill sizes="64px" className="object-cover" />

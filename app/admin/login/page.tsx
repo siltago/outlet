@@ -20,16 +20,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <Image
-            src="/images/logo-outlet-premium.png"
-            alt="Outlet Premium Sorocaba"
+            src="/images/brand/mark-white.png"
+            alt="DSTRKT RAW"
             width={96}
             height={96}
             priority
-            className="h-16 w-16 object-contain"
+            className="h-auto w-24 object-contain"
           />
           <div>
             <h1 className="text-lg font-bold text-brand-white">Painel administrativo</h1>
-            <p className="text-sm text-brand-gray-400">Outlet Premium Sorocaba</p>
+            <p className="text-sm text-brand-gray-400">DSTRKT RAW</p>
           </div>
         </div>
 

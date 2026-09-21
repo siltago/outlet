@@ -87,7 +87,7 @@ export function CatalogClient({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar produto..."
-            className="w-full rounded-brand border border-brand-gray-200 bg-brand-white py-2.5 pl-9 pr-3 text-sm text-brand-black placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none"
+            className="w-full rounded-brand border border-brand-line bg-brand-surface py-2.5 pl-9 pr-3 text-sm text-brand-white placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none"
           />
         </label>
 
@@ -97,7 +97,7 @@ export function CatalogClient({
             <select
               value={categorySlug}
               onChange={(event) => setCategorySlug(event.target.value)}
-              className="w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black focus:border-brand-red focus:outline-none"
+              className="w-full rounded-brand border border-brand-line bg-brand-surface px-3 py-2.5 text-sm text-brand-white focus:border-brand-red focus:outline-none"
             >
               <option value="todas">Todas as categorias</option>
               {categories.map((category) => (
@@ -115,7 +115,7 @@ export function CatalogClient({
             <select
               value={marcaSlug}
               onChange={(event) => setMarcaSlug(event.target.value)}
-              className="w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black focus:border-brand-red focus:outline-none"
+              className="w-full rounded-brand border border-brand-line bg-brand-surface px-3 py-2.5 text-sm text-brand-white focus:border-brand-red focus:outline-none"
             >
               <option value="todas">Todas as marcas</option>
               {marcas.map((marca) => (
@@ -132,7 +132,7 @@ export function CatalogClient({
           <select
             value={availability}
             onChange={(event) => setAvailability(event.target.value as AvailabilityFilter)}
-            className="w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black focus:border-brand-red focus:outline-none"
+            className="w-full rounded-brand border border-brand-line bg-brand-surface px-3 py-2.5 text-sm text-brand-white focus:border-brand-red focus:outline-none"
           >
             {AVAILABILITY_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -147,7 +147,7 @@ export function CatalogClient({
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as SortOption)}
-            className="w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black focus:border-brand-red focus:outline-none"
+            className="w-full rounded-brand border border-brand-line bg-brand-surface px-3 py-2.5 text-sm text-brand-white focus:border-brand-red focus:outline-none"
           >
             {SORT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -158,7 +158,7 @@ export function CatalogClient({
         </label>
       </div>
 
-      <p className="text-sm text-brand-gray-600" aria-live="polite">
+      <p className="text-sm text-brand-gray-400" aria-live="polite">
         {filteredProducts.length}{" "}
         {filteredProducts.length === 1 ? "produto encontrado" : "produtos encontrados"}
       </p>
@@ -170,10 +170,10 @@ export function CatalogClient({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-3 rounded-brand border border-dashed border-brand-gray-200 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-brand border border-dashed border-brand-line py-16 text-center">
           <PackageX className="h-10 w-10 text-brand-gray-400" aria-hidden="true" />
-          <p className="font-semibold text-brand-black">Nenhum produto encontrado</p>
-          <p className="max-w-sm text-sm text-brand-gray-600">
+          <p className="font-semibold text-brand-white">Nenhum produto encontrado</p>
+          <p className="max-w-sm text-sm text-brand-gray-400">
             Tente ajustar a busca ou os filtros. Se preferir, fale com a gente pelo
             WhatsApp que ajudamos a encontrar o que você procura.
           </p>

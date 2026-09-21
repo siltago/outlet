@@ -24,7 +24,7 @@ export function ProductInterestActions({
 
   if (availability.state === "indisponivel") {
     return (
-      <p className="rounded-brand border border-brand-gray-200 bg-brand-gray-50 px-4 py-3 text-sm text-brand-gray-600">
+      <p className="rounded-brand border border-brand-line bg-brand-surface px-4 py-3 text-sm text-brand-gray-400">
         Produto temporariamente indisponível. Fale conosco pelo WhatsApp para mais informações.
       </p>
     );
@@ -47,7 +47,7 @@ export function ProductInterestActions({
               "flex-1 rounded-brand border px-4 py-2.5 text-sm font-semibold transition-colors",
               modality === "pronta_entrega"
                 ? "border-brand-red bg-brand-red text-brand-white"
-                : "border-brand-gray-200 text-brand-black hover:border-brand-red",
+                : "border-brand-line text-brand-white hover:border-brand-red",
             )}
           >
             Pronta entrega
@@ -61,7 +61,7 @@ export function ProductInterestActions({
               "flex-1 rounded-brand border px-4 py-2.5 text-sm font-semibold transition-colors",
               modality === "sob_encomenda"
                 ? "border-brand-red bg-brand-red text-brand-white"
-                : "border-brand-gray-200 text-brand-black hover:border-brand-red",
+                : "border-brand-line text-brand-white hover:border-brand-red",
             )}
           >
             Sob encomenda

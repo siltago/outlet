@@ -5,9 +5,9 @@ import { buildGenericInterestMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export function WhatsAppBand() {
   return (
-    <section className="bg-brand-black py-12">
+    <section className="border-t border-brand-line bg-brand-black py-20">
       <Container className="flex flex-col items-center gap-5 text-center">
-        <h2 className="text-2xl font-bold text-brand-white sm:text-3xl">
+        <h2 className="display text-2xl text-brand-white sm:text-3xl">
           Não encontrou o que procurava?
         </h2>
         <p className="max-w-xl text-brand-gray-400">

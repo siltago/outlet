@@ -6,7 +6,7 @@ import { getCategories, getMarcas, getProducts } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Catálogo",
   description:
-    "Confira todos os produtos disponíveis na Outlet Premium Sorocaba: smartphones, relógios, fones, perfumes, tênis e acessórios.",
+    "Confira todos os produtos disponíveis na DSTRKT RAW: smartphones, relógios, fones, perfumes, tênis e acessórios.",
 };
 
 export default async function CatalogoPage() {
@@ -20,8 +20,8 @@ export default async function CatalogoPage() {
     <section className="py-10">
       <Container>
         <div className="mb-6 flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">Catálogo</h1>
-          <p className="text-sm text-brand-gray-600">
+          <h1 className="display text-2xl text-brand-white sm:text-3xl">Catálogo</h1>
+          <p className="text-sm text-brand-gray-400">
             Produtos selecionados com pronta entrega e sob encomenda.
           </p>
         </div>

@@ -42,7 +42,7 @@ function parseRange(
         nodes.push(
           <span
             key={`${keyPrefix}-${counter.n++}`}
-            className="inline-block rounded-brand bg-brand-gray-100 px-2 py-0.5 text-brand-black"
+            className="inline-block rounded-brand bg-brand-surface-2 px-2 py-0.5 text-brand-white"
           >
             {inner}
           </span>,

@@ -31,21 +31,21 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
       <ProductGallery images={imagens} name={product.nome} />
 
       <div className="flex flex-col gap-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-brand-gray-600">
+        <span className="eyebrow text-brand-gray-400">
           {product.categoria.nome}
           {product.marca && ` · ${product.marca.nome}`}
         </span>
-        <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">{product.nome}</h1>
+        <h1 className="display text-2xl text-brand-white sm:text-3xl">{product.nome}</h1>
         <AvailabilityBadge availability={availability} />
-        <p className="text-3xl font-extrabold text-brand-black">{formatCurrencyBRL(precoVenda)}</p>
-        <p className="w-fit rounded-brand bg-brand-gray-50 px-2 py-1 text-[11px] leading-snug text-brand-gray-600">
+        <p className="text-3xl font-extrabold text-brand-white">{formatCurrencyBRL(precoVenda)}</p>
+        <p className="w-fit rounded-brand bg-brand-surface px-2 py-1 text-[11px] leading-snug text-brand-gray-400">
           Preço sujeito a alteração de valor e condição de pagamento.
         </p>
 
         {cores.length > 0 && (
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium text-brand-black">
-              Cor: <span className="font-normal text-brand-gray-600">{selectedCor?.nome}</span>
+            <span className="text-sm font-medium text-brand-white">
+              Cor: <span className="font-normal text-brand-gray-400">{selectedCor?.nome}</span>
             </span>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Escolha a cor">
               {cores.map((cor, index) => (
@@ -59,7 +59,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
                     "rounded-brand border px-3 py-2 text-sm font-semibold transition-colors",
                     index === selectedIndex
                       ? "border-brand-red bg-brand-red text-brand-white"
-                      : "border-brand-gray-200 text-brand-black hover:border-brand-red",
+                      : "border-brand-line text-brand-white hover:border-brand-red",
                   )}
                 >
                   {cor.nome}
@@ -71,7 +71,7 @@ export function ProductPurchasePanel({ product }: { product: ProductWithCategory
 
         <FormattedDescription
           text={product.descricao}
-          className="text-sm leading-relaxed text-brand-gray-600"
+          className="text-sm leading-relaxed text-brand-gray-400"
         />
 
         <div className="mt-2">

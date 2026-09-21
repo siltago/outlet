@@ -7,18 +7,18 @@ type Size = "md" | "lg";
 
 const VARIANT_STYLES: Record<Variant, string> = {
   primary: "bg-brand-red text-brand-white hover:bg-brand-red-dark",
-  secondary: "bg-brand-black text-brand-white hover:bg-brand-gray-600",
+  secondary: "bg-brand-white text-brand-black hover:bg-brand-gray-200",
   "outline-light":
-    "border border-brand-white/40 text-brand-white hover:bg-brand-white/10",
+    "border border-brand-white/40 text-brand-white hover:border-brand-white hover:bg-brand-white/10",
 };
 
 const SIZE_STYLES: Record<Size, string> = {
-  md: "px-4 py-2.5 text-sm",
-  lg: "px-6 py-3.5 text-base",
+  md: "px-4 py-2.5 text-xs",
+  lg: "px-6 py-3.5 text-sm",
 };
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-brand font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red disabled:opacity-50 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-brand font-semibold uppercase tracking-[0.12em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red disabled:opacity-50 disabled:pointer-events-none";
 
 interface CommonProps {
   variant?: Variant;

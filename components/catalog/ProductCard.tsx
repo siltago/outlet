@@ -17,10 +17,10 @@ export function ProductCard({
   const image = product.imagens[0] ?? "/images/products/placeholder-produto.png";
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-brand border border-brand-gray-200 bg-brand-white">
+    <article className="group flex flex-col overflow-hidden rounded-brand border border-brand-line bg-brand-surface">
       <Link
         href={`/produto/${product.slug}`}
-        className="relative block aspect-square w-full overflow-hidden bg-brand-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-red"
+        className="relative block aspect-square w-full overflow-hidden bg-brand-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-red"
       >
         <Image
           src={image}
@@ -36,17 +36,17 @@ export function ProductCard({
       </Link>
 
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-brand-gray-600">
+        <span className="eyebrow text-brand-gray-400">
           {product.categoria.nome}
           {product.marca && ` · ${product.marca.nome}`}
         </span>
-        <h3 className="text-sm font-semibold text-brand-black">
+        <h3 className="text-sm font-semibold text-brand-white">
           <Link href={`/produto/${product.slug}`} className="hover:text-brand-red">
             {product.nome}
           </Link>
         </h3>
-        <p className="mt-1 text-lg font-bold text-brand-black">
-          {product.temCores && <span className="mr-1 text-xs font-normal text-brand-gray-600">a partir de</span>}
+        <p className="mt-1 text-lg font-bold text-brand-white">
+          {product.temCores && <span className="mr-1 text-xs font-normal text-brand-gray-400">a partir de</span>}
           {formatCurrencyBRL(product.precoVenda)}
         </p>
 

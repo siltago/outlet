@@ -10,6 +10,9 @@
   --brand-gray-200: #e2e2e2;
   --brand-gray-400: #a3a3a3;
   --brand-gray-600: #555555;
+  --brand-surface: #0f0f10;
+  --brand-surface-2: #1a1a1c;
+  --brand-line: #2a2a2d;
 
   --background: var(--brand-white);
   --foreground: var(--brand-black);
@@ -28,14 +31,37 @@
   --color-brand-gray-200: var(--brand-gray-200);
   --color-brand-gray-400: var(--brand-gray-400);
   --color-brand-gray-600: var(--brand-gray-600);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-surface-2: var(--brand-surface-2);
+  --color-brand-line: var(--brand-line);
 
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-space-grotesk);
 
-  --radius-brand: 8px;
+  --radius-brand: 2px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Tipografia da marca DSTRKT RAW: títulos em caixa alta com espaçamento largo
+   e etiquetas técnicas (coordenadas, "EST. 2026") com tracking bem aberto. */
+.display {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+::selection {
+  background: var(--brand-red);
+  color: var(--brand-white);
 }

@@ -13,7 +13,9 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://outlet-ebo
   "",
 );
 
-export const SITE_NAME = "Outlet Premium Sorocaba";
+export const SITE_NAME = "DSTRKT RAW";
+
+export const SITE_TAGLINE = "Selected goods for a bolder life.";
 
 export const SITE_DESCRIPTION =
-  "Produtos importados e de oportunidade em Sorocaba: iPhones por encomenda, Apple Watch, fones, tênis, perfumes importados e acessórios de tecnologia.";
+  "Moda, tech, fragrâncias e lifestyle com estética premium e atitude urbana. Mais que produtos. Cultura. Sorocaba, SP.";

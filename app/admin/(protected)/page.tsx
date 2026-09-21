@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { AlertTriangle, CheckCircle2, Clock, Eye, Package, PackageCheck } from "lucide-react";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { AccessCountCard } from "@/components/admin/AccessCountCard";
+import { createClient } from "@/lib/supabase/server";
 import { getDashboardStats } from "@/lib/admin/products";
 import { formatCurrencyBRL } from "@/lib/format";
 
@@ -17,8 +20,19 @@ const STAT_CARDS = [
   { key: "estoqueBaixo" as const, label: "Estoque baixo", icon: AlertTriangle },
 ];
 
+async function getAccessSummary() {
+  // rpc sem tipagem: a função não está em types/database. Falha => card mostra "–".
+  const supabase = (await createClient()) as unknown as SupabaseClient;
+  const { data, error } = await supabase.rpc("resumo_acessos_30d").maybeSingle<{
+    acessos: number;
+    visitantes: number;
+  }>();
+  if (error || !data) return { acessos: null, visitantes: null };
+  return { acessos: Number(data.acessos), visitantes: Number(data.visitantes) };
+}
+
 export default async function AdminDashboardPage() {
-  const stats = await getDashboardStats();
+  const [stats, access] = await Promise.all([getDashboardStats(), getAccessSummary()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -26,6 +40,8 @@ export default async function AdminDashboardPage() {
         <h1 className="text-xl font-bold text-brand-black">Dashboard</h1>
         <p className="text-sm text-brand-gray-600">Visão geral do catálogo administrado.</p>
       </div>
+
+      <AccessCountCard acessos={access.acessos} visitantes={access.visitantes} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {STAT_CARDS.map((card) => (

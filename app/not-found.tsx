@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
-    <section className="py-20">
+    <section className="min-h-screen bg-brand-black py-32">
       <Container className="flex flex-col items-center gap-4 text-center">
         <PackageX className="h-12 w-12 text-brand-gray-400" aria-hidden="true" />
-        <h1 className="text-2xl font-bold text-brand-black">Página não encontrada</h1>
-        <p className="max-w-sm text-sm text-brand-gray-600">
+        <h1 className="display text-2xl text-brand-white">Página não encontrada</h1>
+        <p className="max-w-sm text-sm text-brand-gray-400">
           O conteúdo que você procura não existe ou não está mais disponível.
         </p>
         <Button href="/catalogo" variant="primary" size="md">

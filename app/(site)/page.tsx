@@ -3,26 +3,30 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { CategoryCard } from "@/components/catalog/CategoryCard";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { BannerCarousel } from "@/components/home/BannerCarousel";
 import { Hero } from "@/components/home/Hero";
 import { CommunityBand } from "@/components/home/CommunityBand";
 import { TrustSection } from "@/components/home/TrustSection";
 import { WhatsAppBand } from "@/components/home/WhatsAppBand";
+import { getActiveBanners } from "@/lib/banners";
 import { getCategories, getFeaturedProducts } from "@/lib/data";
 
 export default async function HomePage() {
-  const [categories, featuredProducts] = await Promise.all([
+  const [categories, featuredProducts, banners] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
+    getActiveBanners(),
   ]);
 
   return (
     <>
-      <Hero />
+      {/* Com banners ativos, o carrossel ocupa o topo; sem eles, a capa padrão. */}
+      {banners.length > 0 ? <BannerCarousel banners={banners} /> : <Hero />}
 
-      <section className="py-14">
+      <section className="py-16">
         <Container>
           <div className="mb-6 flex items-end justify-between">
-            <h2 className="text-2xl font-bold text-brand-black">Categorias</h2>
+            <h2 className="display text-2xl text-brand-white">Categorias</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((category) => (
@@ -33,11 +37,11 @@ export default async function HomePage() {
       </section>
 
       {featuredProducts.length > 0 && (
-        <section className="pb-14">
+        <section className="pb-16">
           <Container>
             <div className="mb-6 flex items-end justify-between gap-4">
-              <h2 className="text-2xl font-bold text-brand-black">Produtos em destaque</h2>
-              <Button href="/catalogo" variant="secondary" size="md" className="shrink-0">
+              <h2 className="display text-2xl text-brand-white">Produtos em destaque</h2>
+              <Button href="/catalogo" variant="outline-light" size="md" className="shrink-0">
                 Ver tudo
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Button>

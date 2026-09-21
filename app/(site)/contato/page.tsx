@@ -6,15 +6,15 @@ import { buildGenericInterestMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Contato",
-  description: "Fale com a Outlet Premium Sorocaba pelo WhatsApp.",
+  description: "Fale com a DSTRKT RAW pelo WhatsApp.",
 };
 
 export default function ContatoPage() {
   return (
     <section className="py-14">
       <Container className="flex flex-col items-center gap-6 text-center">
-        <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">Fale com a gente</h1>
-        <p className="max-w-lg text-sm text-brand-gray-600">
+        <h1 className="display text-2xl text-brand-white sm:text-3xl">Fale com a gente</h1>
+        <p className="max-w-lg text-sm text-brand-gray-400">
           Atendimento direto pelo WhatsApp para tirar dúvidas, confirmar disponibilidade
           de pronta entrega ou fazer encomendas.
         </p>
@@ -31,13 +31,13 @@ export default function ContatoPage() {
         </Button>
 
         <div className="mt-6 grid w-full max-w-lg gap-4 sm:grid-cols-2">
-          <div className="flex flex-col items-center gap-2 rounded-brand border border-brand-gray-200 p-5">
-            <MapPin className="h-6 w-6 text-brand-black" aria-hidden="true" />
-            <p className="text-sm font-semibold text-brand-black">Sorocaba - SP</p>
+          <div className="flex flex-col items-center gap-2 rounded-brand border border-brand-line p-5">
+            <MapPin className="h-6 w-6 text-brand-white" aria-hidden="true" />
+            <p className="text-sm font-semibold text-brand-white">Sorocaba - SP</p>
           </div>
-          <div className="flex flex-col items-center gap-2 rounded-brand border border-brand-gray-200 p-5">
-            <Clock className="h-6 w-6 text-brand-black" aria-hidden="true" />
-            <p className="text-sm font-semibold text-brand-black">Atendimento combinado pelo WhatsApp</p>
+          <div className="flex flex-col items-center gap-2 rounded-brand border border-brand-line p-5">
+            <Clock className="h-6 w-6 text-brand-white" aria-hidden="true" />
+            <p className="text-sm font-semibold text-brand-white">Atendimento combinado pelo WhatsApp</p>
           </div>
         </div>
       </Container>

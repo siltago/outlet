@@ -8,7 +8,7 @@ export function buildWhatsAppUrl(message: string): string {
 }
 
 export function buildGenericInterestMessage(): string {
-  return "Olá! Vim pelo site da Outlet Premium Sorocaba e gostaria de mais informações.";
+  return "Olá! Vim pelo site da DSTRKT RAW e gostaria de mais informações.";
 }
 
 export function buildProductUrl(productSlug: string): string {
@@ -27,7 +27,7 @@ export function buildProductInterestMessage(
 ): string {
   const link = buildProductUrl(productSlug);
   if (modality === "sob_encomenda") {
-    return `Olá! Quero encomendar o produto ${productName} da Outlet Premium Sorocaba.\n${link}`;
+    return `Olá! Quero encomendar o produto ${productName} da DSTRKT RAW.\n${link}`;
   }
-  return `Olá! Tenho interesse no produto ${productName} da Outlet Premium Sorocaba.\n${link}`;
+  return `Olá! Tenho interesse no produto ${productName} da DSTRKT RAW.\n${link}`;
 }

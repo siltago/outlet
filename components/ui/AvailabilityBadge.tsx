@@ -3,10 +3,10 @@ import type { Availability } from "@/lib/availability";
 import { cn } from "@/lib/cn";
 
 const STYLES: Record<Availability["state"], string> = {
-  pronta_entrega: "bg-brand-black text-brand-white",
-  sob_encomenda: "bg-brand-gray-100 text-brand-black border border-brand-gray-200",
-  ambos: "bg-brand-black text-brand-white",
-  indisponivel: "bg-brand-gray-100 text-brand-gray-600 border border-brand-gray-200",
+  pronta_entrega: "bg-brand-white text-brand-black",
+  sob_encomenda: "bg-brand-black/80 text-brand-white border border-brand-white/30 backdrop-blur",
+  ambos: "bg-brand-white text-brand-black",
+  indisponivel: "bg-brand-surface-2 text-brand-gray-400 border border-brand-line",
 };
 
 const ICONS: Record<Availability["state"], typeof CheckCircle2> = {
@@ -21,7 +21,7 @@ export function AvailabilityBadge({ availability }: { availability: Availability
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-brand px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1 rounded-brand px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
         STYLES[availability.state],
       )}
     >

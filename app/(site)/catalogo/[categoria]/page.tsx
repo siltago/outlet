@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: CategoriaPageProps): Promise<
 
   return {
     title: category.nome,
-    description: `Produtos da categoria ${category.nome} na Outlet Premium Sorocaba.`,
+    description: `Produtos da categoria ${category.nome} na DSTRKT RAW.`,
   };
 }
 
@@ -34,8 +34,8 @@ export default async function CategoriaPage({ params }: CategoriaPageProps) {
     <section className="py-10">
       <Container>
         <div className="mb-6 flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-brand-black sm:text-3xl">{category.nome}</h1>
-          <p className="text-sm text-brand-gray-600">
+          <h1 className="display text-2xl text-brand-white sm:text-3xl">{category.nome}</h1>
+          <p className="text-sm text-brand-gray-400">
             Produtos da categoria {category.nome.toLowerCase()}.
           </p>
         </div>
