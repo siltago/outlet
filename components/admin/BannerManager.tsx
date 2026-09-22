@@ -22,13 +22,41 @@ const ALLOWED_TYPES: Record<string, string> = {
   "image/avif": "avif",
 };
 const MAX_SIZE_MB = 8;
+const REQUIRED_WIDTH = 1920;
+const REQUIRED_HEIGHT = 720;
 
 const INPUT_CLASS =
   "w-full rounded-brand border border-brand-gray-200 bg-brand-white px-3 py-2.5 text-sm text-brand-black placeholder:text-brand-gray-400 focus:border-brand-red focus:outline-none";
 
-function validateFile(file: File): string | null {
+function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Não foi possível ler a imagem."));
+    };
+    img.src = url;
+  });
+}
+
+async function validateFile(file: File): Promise<string | null> {
   if (!ALLOWED_TYPES[file.type]) return `"${file.name}": use PNG, JPEG, WEBP ou AVIF.`;
   if (file.size > MAX_SIZE_MB * 1024 * 1024) return `"${file.name}": maior que ${MAX_SIZE_MB}MB.`;
+
+  try {
+    const { width, height } = await readImageDimensions(file);
+    if (width !== REQUIRED_WIDTH || height !== REQUIRED_HEIGHT) {
+      return `"${file.name}": precisa ter exatamente ${REQUIRED_WIDTH} × ${REQUIRED_HEIGHT} px (essa tem ${width} × ${height} px).`;
+    }
+  } catch {
+    return `"${file.name}": não foi possível ler a imagem.`;
+  }
+
   return null;
 }
 
@@ -44,17 +72,15 @@ export function BannerManager({ banners }: { banners: Banner[] }) {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    const desktop = formData.get("desktop");
-    const mobile = formData.get("mobile");
+    const file = formData.get("imagem");
     const link = String(formData.get("link") ?? "");
 
-    if (!(desktop instanceof File) || desktop.size === 0) {
+    if (!(file instanceof File) || file.size === 0) {
       setError("Escolha a imagem do banner.");
       return;
     }
-    const mobileFile = mobile instanceof File && mobile.size > 0 ? mobile : null;
 
-    const invalid = validateFile(desktop) ?? (mobileFile ? validateFile(mobileFile) : null);
+    const invalid = await validateFile(file);
     if (invalid) {
       setError(invalid);
       return;
@@ -62,30 +88,22 @@ export function BannerManager({ banners }: { banners: Banner[] }) {
 
     setUploading(true);
     const supabase = createClient();
-    const uploaded: string[] = [];
+    const path = `${crypto.randomUUID()}.${ALLOWED_TYPES[file.type]}`;
 
-    async function upload(file: File): Promise<string> {
-      const path = `${crypto.randomUUID()}.${ALLOWED_TYPES[file.type]}`;
+    try {
       const { error: uploadError } = await supabase.storage
         .from(BANNERS_BUCKET)
         .upload(path, file, { contentType: file.type });
       if (uploadError) throw new Error(uploadError.message);
-      uploaded.push(path);
-      return path;
-    }
 
-    try {
-      const imagemCaminho = await upload(desktop);
-      const imagemMobileCaminho = mobileFile ? await upload(mobileFile) : null;
-
-      const result = await createBannerAction({ imagemCaminho, imagemMobileCaminho, link });
+      const result = await createBannerAction({ imagemCaminho: path, link });
       if (result.error) throw new Error(result.error);
 
       formRef.current?.reset();
       router.refresh();
     } catch (err) {
-      // A action já limpa órfãos quando ela mesma falha; aqui cobre falha antes dela.
-      if (uploaded.length > 0) await supabase.storage.from(BANNERS_BUCKET).remove(uploaded);
+      // A action já limpa o arquivo quando ela mesma falha; aqui cobre falha antes dela.
+      await supabase.storage.from(BANNERS_BUCKET).remove([path]);
       setError(err instanceof Error ? err.message : "Não foi possível enviar o banner.");
     } finally {
       setUploading(false);
@@ -124,32 +142,20 @@ export function BannerManager({ banners }: { banners: Banner[] }) {
       >
         <h2 className="text-sm font-semibold text-brand-black">Novo banner</h2>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-brand-black">Imagem (computador)</span>
-            <input
-              type="file"
-              name="desktop"
-              accept="image/png,image/jpeg,image/webp,image/avif"
-              required
-              className={INPUT_CLASS}
-            />
-            <span className="text-xs text-brand-gray-600">Ideal: 1920 × 720 px (formato largo).</span>
-          </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-brand-black">Imagem (celular) — opcional</span>
-            <input
-              type="file"
-              name="mobile"
-              accept="image/png,image/jpeg,image/webp,image/avif"
-              className={INPUT_CLASS}
-            />
-            <span className="text-xs text-brand-gray-600">
-              Ideal: 1200 × 750 px. Sem ela, a imagem do computador é recortada no celular.
-            </span>
-          </label>
-        </div>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-brand-black">Imagem do banner</span>
+          <input
+            type="file"
+            name="imagem"
+            accept="image/png,image/jpeg,image/webp,image/avif"
+            required
+            className={INPUT_CLASS}
+          />
+          <span className="text-xs text-brand-gray-600">
+            Obrigatório: exatamente {REQUIRED_WIDTH} × {REQUIRED_HEIGHT} px — a mesma imagem é usada no
+            computador e no celular.
+          </span>
+        </label>
 
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-brand-black">Link ao clicar — opcional</span>
@@ -178,7 +184,7 @@ export function BannerManager({ banners }: { banners: Banner[] }) {
 
         {banners.length === 0 ? (
           <p className="px-4 py-10 text-center text-sm text-brand-gray-600">
-            Nenhum banner ainda. Enquanto não houver banner ativo, a home mostra a capa padrão.
+            Nenhum banner ainda. Enquanto não houver banner ativo, essa área não aparece na home.
           </p>
         ) : (
           <ul className="divide-y divide-brand-gray-200">
@@ -198,7 +204,6 @@ export function BannerManager({ banners }: { banners: Banner[] }) {
                     #{index + 1} · {banner.ativo ? "Ativo no site" : "Oculto"}
                   </span>
                   <span className="truncate">{banner.link ? `Link: ${banner.link}` : "Sem link"}</span>
-                  <span>{banner.imagemMobile ? "Com imagem para celular" : "Sem imagem para celular"}</span>
                 </div>
 
                 <div className="flex items-center gap-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import Image, { getImageProps } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,28 +9,6 @@ import type { Banner } from "@/types/banner";
 
 const AUTOPLAY_MS = 5000;
 const SWIPE_THRESHOLD_PX = 50;
-
-function BannerImage({ banner, priority }: { banner: Banner; priority: boolean }) {
-  const common = { fill: true, sizes: "100vw", quality: 85, priority };
-
-  if (!banner.imagemMobile) {
-    return <Image src={banner.imagem} alt="" className="object-cover" {...common} />;
-  }
-
-  // Direção de arte: imagem própria para celular, sem baixar as duas.
-  const desktop = getImageProps({ ...common, alt: "", src: banner.imagem });
-  const mobile = getImageProps({ ...common, alt: "", src: banner.imagemMobile });
-  const { srcSet: _unused, ...imgProps } = mobile.props;
-  void _unused;
-
-  return (
-    <picture>
-      <source media="(min-width: 768px)" srcSet={desktop.props.srcSet} />
-      <source media="(max-width: 767px)" srcSet={mobile.props.srcSet} />
-      <img {...imgProps} alt="" className="object-cover" />
-    </picture>
-  );
-}
 
 export function BannerCarousel({ banners }: { banners: Banner[] }) {
   const [index, setIndex] = useState(0);
@@ -83,12 +61,21 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
       }}
       onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
     >
-      <div className="relative aspect-[16/10] w-full md:aspect-[8/3]">
+      {/* Formato fixo 1920×720 (8/3) — igual no computador e no celular. */}
+      <div className="relative aspect-[8/3] w-full">
         {banners.map((banner, i) => {
           const active = i === index;
           const slide = (
             <div className="absolute inset-0">
-              <BannerImage banner={banner} priority={i === 0} />
+              <Image
+                src={banner.imagem}
+                alt=""
+                fill
+                sizes="100vw"
+                quality={85}
+                priority={i === 0}
+                className="object-cover"
+              />
             </div>
           );
 

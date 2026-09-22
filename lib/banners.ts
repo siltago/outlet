@@ -12,7 +12,6 @@ function mapBanner(row: BannerRow): Banner {
   return {
     id: row.id,
     imagem: buildBannerUrl(row.imagem_caminho),
-    imagemMobile: row.imagem_mobile_caminho ? buildBannerUrl(row.imagem_mobile_caminho) : null,
     link: row.link,
     ordem: row.ordem,
     ativo: row.ativo,

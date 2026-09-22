@@ -33,15 +33,11 @@ function normalizeLink(raw: string): string | null | undefined {
 
 export async function createBannerAction(input: {
   imagemCaminho: string;
-  imagemMobileCaminho: string | null;
   link: string;
 }): Promise<ActionResult> {
   await requireStaff();
 
   if (!PATH_PATTERN.test(input.imagemCaminho)) return { error: "Imagem inválida." };
-  if (input.imagemMobileCaminho && !PATH_PATTERN.test(input.imagemMobileCaminho)) {
-    return { error: "Imagem para celular inválida." };
-  }
   const link = normalizeLink(input.link);
   if (link === undefined) {
     return { error: "Link inválido. Use um endereço https://... ou um caminho como /catalogo." };
@@ -58,16 +54,12 @@ export async function createBannerAction(input: {
 
   const { error } = await supabase.from("banners").insert({
     imagem_caminho: input.imagemCaminho,
-    imagem_mobile_caminho: input.imagemMobileCaminho,
     link,
     ordem: (last?.ordem ?? -1) + 1,
   });
 
   if (error) {
-    const orphans = [input.imagemCaminho, input.imagemMobileCaminho].filter(
-      (path): path is string => Boolean(path),
-    );
-    await supabase.storage.from(BANNERS_BUCKET).remove(orphans);
+    await supabase.storage.from(BANNERS_BUCKET).remove([input.imagemCaminho]);
     return { error: "Não foi possível salvar o banner." };
   }
 
@@ -118,7 +110,7 @@ export async function deleteBannerAction(id: string): Promise<ActionResult> {
 
   const { data: banner } = await supabase
     .from("banners")
-    .select("imagem_caminho, imagem_mobile_caminho")
+    .select("imagem_caminho")
     .eq("id", id)
     .maybeSingle();
 
@@ -127,10 +119,7 @@ export async function deleteBannerAction(id: string): Promise<ActionResult> {
 
   if (banner) {
     // Arquivo órfão no bucket não é crítico; por isso não falha a ação.
-    const paths = [banner.imagem_caminho, banner.imagem_mobile_caminho].filter(
-      (path): path is string => Boolean(path),
-    );
-    await supabase.storage.from(BANNERS_BUCKET).remove(paths);
+    await supabase.storage.from(BANNERS_BUCKET).remove([banner.imagem_caminho]);
   }
 
   revalidateBanners();
