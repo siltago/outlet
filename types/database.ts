@@ -96,7 +96,6 @@ export interface Database {
         Row: {
           id: string;
           imagem_caminho: string;
-          imagem_mobile_caminho: string | null;
           link: string | null;
           ordem: number;
           ativo: boolean;
@@ -105,7 +104,6 @@ export interface Database {
         Insert: {
           id?: string;
           imagem_caminho: string;
-          imagem_mobile_caminho?: string | null;
           link?: string | null;
           ordem?: number;
           ativo?: boolean;
@@ -114,7 +112,6 @@ export interface Database {
         Update: {
           id?: string;
           imagem_caminho?: string;
-          imagem_mobile_caminho?: string | null;
           link?: string | null;
           ordem?: number;
           ativo?: boolean;
