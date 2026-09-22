@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { CategoryCard } from "@/components/catalog/CategoryCard";
+import { CategoryList } from "@/components/catalog/CategoryList";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { BannerCarousel } from "@/components/home/BannerCarousel";
 import { Hero } from "@/components/home/Hero";
@@ -27,11 +27,7 @@ export default async function HomePage() {
           <div className="mb-6 flex items-end justify-between">
             <h2 className="display text-2xl text-brand-white">Categorias</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
+          <CategoryList categories={categories} />
         </Container>
       </section>
 
