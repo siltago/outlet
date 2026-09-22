@@ -33,7 +33,9 @@ export default async function HomePage() {
 
       {banners.length > 0 && (
         <div className="pb-16">
-          <BannerCarousel banners={banners} />
+          <Container>
+            <BannerCarousel banners={banners} />
+          </Container>
         </div>
       )}
 

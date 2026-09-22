@@ -51,7 +51,7 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
     <section
       aria-roledescription="carrossel"
       aria-label="Destaques"
-      className="relative isolate w-full overflow-hidden bg-brand-black"
+      className="relative isolate w-full overflow-hidden rounded-brand bg-brand-black"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
