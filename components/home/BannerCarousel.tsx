@@ -62,59 +62,64 @@ export function BannerCarousel({ banners }: { banners: Banner[] }) {
       onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
     >
       {/* Formato fixo 1920×720 (8/3) — igual no computador e no celular. */}
-      <div className="relative aspect-[8/3] w-full">
-        {banners.map((banner, i) => {
-          const active = i === index;
-          const slide = (
-            <div className="absolute inset-0">
-              <Image
-                src={banner.imagem}
-                alt=""
-                fill
-                sizes="100vw"
-                quality={85}
-                priority={i === 0}
-                className="object-cover"
-              />
-            </div>
-          );
+      <div className="relative aspect-[8/3] w-full overflow-hidden">
+        <div
+          className={cn(
+            "flex h-full",
+            !reducedMotion && "transition-transform duration-700 ease-out",
+          )}
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
+          {banners.map((banner, i) => {
+            const active = i === index;
+            const slide = (
+              <div className="relative h-full w-full">
+                <Image
+                  src={banner.imagem}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  quality={85}
+                  priority={i === 0}
+                  className="object-cover"
+                />
+              </div>
+            );
 
-          return (
-            <div
-              key={banner.id}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${i + 1} de ${total}`}
-              aria-hidden={!active}
-              className={cn(
-                "absolute inset-0 transition-opacity duration-700",
-                active ? "opacity-100" : "pointer-events-none opacity-0",
-              )}
-            >
-              {banner.link ? (
-                banner.link.startsWith("/") ? (
-                  <Link href={banner.link} tabIndex={active ? 0 : -1} className="block h-full w-full">
-                    {slide}
-                    <span className="sr-only">Ver mais</span>
-                  </Link>
+            return (
+              <div
+                key={banner.id}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${i + 1} de ${total}`}
+                aria-hidden={!active}
+                className="h-full w-full shrink-0"
+              >
+                {banner.link ? (
+                  banner.link.startsWith("/") ? (
+                    <Link href={banner.link} tabIndex={active ? 0 : -1} className="block h-full w-full">
+                      {slide}
+                      <span className="sr-only">Ver mais</span>
+                    </Link>
+                  ) : (
+                    <a
+                      href={banner.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      tabIndex={active ? 0 : -1}
+                      className="block h-full w-full"
+                    >
+                      {slide}
+                      <span className="sr-only">Ver mais</span>
+                    </a>
+                  )
                 ) : (
-                  <a
-                    href={banner.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    tabIndex={active ? 0 : -1}
-                    className="block h-full w-full"
-                  >
-                    {slide}
-                    <span className="sr-only">Ver mais</span>
-                  </a>
-                )
-              ) : (
-                slide
-              )}
-            </div>
-          );
-        })}
+                  slide
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {total > 1 && (
